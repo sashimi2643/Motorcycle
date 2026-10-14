@@ -6,7 +6,7 @@
 // ‰Šú‰»ˆ—
 void Play::Init()
 {
-	game_mode = TITLE;
+	game_mode = PLAY;
 }
 
 // “ü—Íˆ—

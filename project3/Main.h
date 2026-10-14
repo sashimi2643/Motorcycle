@@ -2,22 +2,22 @@
 #include <ctime>         // 標準C ライブラリ ヘッダー <time.h> をインクルードし、関連する名前を std 名前空間に追加します。
 #include "DxLib.h"		 // DxLib
 #include "Play.h"		 // Play.h
-#include "Title.h"		 // Title.h
-#include "Player.h"      // Player.h
-#include "Result.h"      // Result.h
-#include "ProcessBase.h" // ProcessBase.h
+//#include "Title.h"		 // Title.h
+//#include "Player.h"      // Player.h
+//#include "Result.h"      // Result.h
+#include "Base.h"		 // Base.h
 
 // ゲームクラス
 class Game : public ProcessBase
 {
 	// プレイのインスタンス
 	Play play;
-	// タイトルのインスタンス
-	Title title;
-	// プレイヤーのインスタンス
-	Player player;
-	// リザルトのインスタンス
-	Result result;
+	//// タイトルのインスタンス
+	//Title title;
+	//// プレイヤーのインスタンス
+	//Player player;
+	//// リザルトのインスタンス
+	//Result result;
 
 public:
 

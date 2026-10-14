@@ -1,6 +1,6 @@
 #pragma once
 #include "Base.h"
-class object : public ProcessBase
+class Object : public ProcessBase
 {
 public:
 

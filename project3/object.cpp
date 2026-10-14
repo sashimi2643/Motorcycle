@@ -1,26 +1,26 @@
-#include "object.h"
+#include "Object.h"
 
 //	‰Šú‰»ˆ—
-void object::Init()
+void Object::Init()
 {
 }
 
 //	“ü—Íˆ—
-void object::Input()
+void Object::Input()
 {
 }
 
 //	XVˆ—
-void object::Update()
+void Object::Update()
 {
 }
 
 //	•`‰æˆ—
-void object::Render()
+void Object::Render()
 {
 }
 
 //	‰¹ºÄ¶ˆ—
-void object::Sound_play()
+void Object::Sound_play()
 {
 }

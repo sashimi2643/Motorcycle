@@ -7,6 +7,9 @@
 //#include "Result.h"
 //#include "Stage.h"
 #include "Base.h"
+#include "Road.h"
+#include "Object.h"
+#include <vector>
 
 // クラス
 class Play : public ProcessBase
@@ -21,6 +24,35 @@ class Play : public ProcessBase
 	//Result* result = nullptr;
 	//// ステージのインスタンス
 	//Stage* stage = nullptr;
+
+	// 道路と障害物
+	Road* road = nullptr;
+	Object* object = nullptr;
+
+	// プレイヤーの位置
+	float playerX = 0.0f;
+
+	// ゲーム進行
+	float elapsedTime = 0.0f;
+	float spawnTimer = 0.0f;
+	float speed = 0.28f;
+	float deltaTime = 0.0f;
+
+	int score = 0;
+	int lastUpdateTime = 0;
+
+	// キー入力
+	char Key[256]{};
+	char OldKey[256]{};
+
+	// 補助処理
+	void ResetGame();
+	void UpdatePlayer();
+	void UpdateObstacles();
+	void CheckCollision();
+	void SpawnObstacle();
+	void DrawPlayer();
+
 public:
 
 	// ゲームのモード

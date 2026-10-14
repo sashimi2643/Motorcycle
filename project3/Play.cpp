@@ -6,7 +6,8 @@
 // 初期化処理
 void Play::Init()
 {
-	game_mode = PLAY;
+	// 開始画面
+	game_mode = TITLE;
 }
 
 // 入力処理
@@ -18,13 +19,15 @@ void Play::Input()
 void Play::Update()
 {
 	GetHitKeyStateAll(Key);
+	const float speed = 5.0f;
 	switch (game_mode) {
 	case TITLE:  // タイトル画面の時の処理
-
+		if (Key[KEY_INPUT_SPACE] == 1 && OldKey[KEY_INPUT_SPACE] == 0) {
+			game_mode = PLAY;
+		}
 		break;
 
 	case PLAY:
-
 		break;
 
 	case RESULT:

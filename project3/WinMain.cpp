@@ -4,8 +4,8 @@
 #include "Main.h"
 
 //	定数の宣言
-#define WINDOW_W 550	// 画面サイズ　横
-#define WINDOW_H 800	// 画面サイズ　縦
+#define WINDOW_W 1280	// 画面サイズ　横
+#define WINDOW_H 720	// 画面サイズ　縦
 
 
 // ------------------------------

@@ -63,8 +63,6 @@ public:
 	};
 	int game_mode;
 
-	char Key[256];
-	char OldKey[256];
 	bool KeyPush(int key);
 
 	// ゲーム開始前の「３・２・１」カウント

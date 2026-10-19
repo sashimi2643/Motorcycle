@@ -1,22 +1,25 @@
 #pragma once
 #include "Base.h"
-class Road : public ProcessBase
+#include "DxLib.h"
+#include <cmath>
+
+class Road
 {
+private:
+	float scrollOffset = 0.0f;
+
+	// “¹˜H‚Ì‰“‹ßŠ´‚ğŒvZ‚·‚é
+	float GetRoadHalfWidth(float t) const;
+
 public:
 
 	//	‰Šú‰»ˆ—
-	void Init()override;
-
-	//@“ü—Íˆ—
-	void Input()override;
+	void Init();
 
 	//	XVˆ—
-	void Update()override;
+	void Update(float deltaTime, float speed);
 
 	//	•`‰æˆ—
-	void Render()override;
-
-	//	‰¹ºÄ¶ˆ—
-	void Sound_play()override;
+	void Draw(float playerX) const;
 };
 

@@ -1,22 +1,28 @@
 #pragma once
 #include "Base.h"
-class Object : public ProcessBase
+#include "DxLib.h"
+#include <algorithm>
+
+class Object
 {
+private:
+	float z = 1.0f;
+	float lane = 0.0f;
+
+	// 奥行きから画面上の位置を計算
+	float GetDepthRate() const;
 public:
-
 	//	初期化処理
-	void Init()override;
-
-	//　入力処理
-	void Input()override;
-
+	void Init(int lane);
 	//	更新処理
-	void Update()override;
-
+	void Update(float deltaTime, float speed);
 	//	描画処理
-	void Render()override;
+	void Draw(float playerX) const;
 
-	//	音声再生処理
-	void Sound_play()override;
+	bool IsOutOfScreen() const;
+	bool IsNearPlayer() const;
+
+	float GetZ() const;
+	float GetLane() const;
 };
 

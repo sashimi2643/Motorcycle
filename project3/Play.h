@@ -11,6 +11,13 @@
 #include "Object.h"
 #include <vector>
 
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <cstring>
+#include <tchar.h>
+
 // クラス
 class Play : public ProcessBase
 {
@@ -25,25 +32,10 @@ class Play : public ProcessBase
 	//// ステージのインスタンス
 	//Stage* stage = nullptr;
 
+
 	// 道路と障害物
-	Road* road = nullptr;
-	Object* object = nullptr;
-
-	// プレイヤーの位置
-	float playerX = 0.0f;
-
-	// ゲーム進行
-	float elapsedTime = 0.0f;
-	float spawnTimer = 0.0f;
-	float speed = 0.28f;
-	float deltaTime = 0.0f;
-
-	int score = 0;
-	int lastUpdateTime = 0;
-
-	// キー入力
-	char Key[256]{};
-	char OldKey[256]{};
+	Road road;
+	std::vector<Object> objects;
 
 	// 補助処理
 	void ResetGame();
@@ -63,6 +55,23 @@ public:
 	};
 	int game_mode;
 
+
+	// プレイヤーの位置
+	float playerX = 0.0f;
+
+	// ゲーム進行
+	float elapsedTime = 0.0f;
+	float spawnTimer = 0.0f;
+	float speed = 0.28f;
+	float deltaTime = 0.0f;
+
+	int score = 0;
+	int lastUpdateTime = 0;
+
+	// キー入力
+	char Key[256]{};
+	char OldKey[256]{};
+
 	bool KeyPush(int key);
 
 	// ゲーム開始前の「３・２・１」カウント
@@ -73,7 +82,6 @@ public:
 	// SEの変数
 	int se_mov_break;  // 破壊中の音
 	int se_break;      // 破壊した音
-
 
 	//	初期化処理
 	void Init()override;
@@ -95,4 +103,5 @@ public:
 	//void SetTitle(Title* arg_title);
 	//void SetResult(Result* arg_result);
 	//void SetStage(Stage* arg_stage);
+	void SetRoad(Road* arg_road);
 };

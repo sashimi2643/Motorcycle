@@ -6,7 +6,7 @@
 class Road
 {
 private:
-	float scrollOffset = 0.0f;
+	float lineOffset = 0.0f;
 
 	// “¹˜H‚Ì‰“‹ßŠ´‚ðŒvŽZ‚·‚é
 	float GetRoadHalfWidth(float t) const;

@@ -4,151 +4,151 @@ namespace
 {
     constexpr int SCREEN_W = 1280;
     constexpr int SCREEN_H = 720;
-    constexpr int HORIZON_Y = 160;
 
-    constexpr unsigned int SKY_COLOR =
-        0x87CEEB;
+    // 地平線を上げて、遠近感を強める
+    constexpr int HORIZON_Y = 120;
 
-    constexpr unsigned int GRASS_COLOR =
-        0x267A35;
+    // 道路の幅
+    constexpr float ROAD_BOTTOM_HALF =620.0f;
+    constexpr float ROAD_TOP_HALF = 8.0f;
 
-    constexpr unsigned int ROAD_COLOR =
-        0x454545;
+    const unsigned int SKY_COLOR =
+        GetColor(100, 180, 235);
 
-    constexpr unsigned int WHITE_COLOR =
-        0xFFFFFF;
+    const unsigned int GROUND_COLOR =
+        GetColor(65, 135, 65);
+
+    const unsigned int ROAD_COLOR =
+        GetColor(65, 65, 70);
+
+    const unsigned int EDGE_COLOR =
+        GetColor(230, 230, 220);
+
+    const unsigned int LINE_COLOR =
+        GetColor(245, 245, 225);
 }
 
 //	初期化処理
 void Road::Init()
 {
-    //scrollOffset = 0.0f;
+    lineOffset = 0.0f;
 }
 
 //	更新処理
 void Road::Update(float deltaTime, float speed)
 {
-    // 時間経過で道路の白線を流す
-    scrollOffset += deltaTime * speed;
+    // 道路中央の白線を下方向へ流す
+    lineOffset += deltaTime * speed * 500.0f;
 
-    // 周期的に繰り返す
-    if (scrollOffset >= 1.0f)
+    if (lineOffset >= 80.0f)
     {
-        scrollOffset -= 1.0f;
+        lineOffset -= 80.0f;
     }
 }
 
 //	描画処理
 void Road::Draw(float playerX) const
 {
-    // 空と地面
+    // 空
     DrawBox(
         0, 0, SCREEN_W, HORIZON_Y,
-        SKY_COLOR, TRUE);
+        SKY_COLOR, TRUE
+    );
 
+    // 地面
     DrawBox(
         0, HORIZON_Y, SCREEN_W, SCREEN_H,
-        GRASS_COLOR, TRUE);
+        GROUND_COLOR, TRUE
+    );
 
     const int centerX = SCREEN_W / 2;
 
-    // 道路を細かい四角形に分割して描画
-    constexpr int SEGMENTS = 60;
-
-    for (int i = 0; i < SEGMENTS; ++i)
+    // 道路を横線ごとに描画し、奥から手前へ広がる形にする
+    for (int y = HORIZON_Y; y < SCREEN_H; ++y)
     {
-        float t0 = static_cast<float>(i) / SEGMENTS;
-        float t1 = static_cast<float>(i + 1) / SEGMENTS;
+        float t = static_cast<float>(y - HORIZON_Y) /
+            static_cast<float>(SCREEN_H - HORIZON_Y);
 
-        float y0 = HORIZON_Y
-            + (SCREEN_H - HORIZON_Y) * t0 * t0;
+        float halfWidth = GetRoadHalfWidth(t);
 
-        float y1 = HORIZON_Y
-            + (SCREEN_H - HORIZON_Y) * t1 * t1;
+        int leftX = centerX - static_cast<int>(halfWidth);
+        int rightX = centerX + static_cast<int>(halfWidth);
 
-        float w0 = GetRoadHalfWidth(t0);
-        float w1 = GetRoadHalfWidth(t1);
+        DrawLine(
+            leftX, y, rightX, y,
+            ROAD_COLOR, 1
+        );
 
-        DrawQuadrangle(
-            static_cast<int>(centerX - w0),
-            static_cast<int>(y0),
-            static_cast<int>(centerX + w0),
-            static_cast<int>(y0),
-            static_cast<int>(centerX + w1),
-            static_cast<int>(y1),
-            static_cast<int>(centerX - w1),
-            static_cast<int>(y1),
-            ROAD_COLOR, TRUE);
+        // 道路の左右の白線
+        DrawPixel(leftX, y, EDGE_COLOR);
+        DrawPixel(rightX, y, EDGE_COLOR);
     }
 
-    // 道路の左右の境界線
+    // 道路の左右の境界線を直線で描画
     DrawLine(
-        centerX - static_cast<int>(GetRoadHalfWidth(0.0f)),
+        centerX - static_cast<int>(ROAD_TOP_HALF),
         HORIZON_Y,
-        centerX - static_cast<int>(GetRoadHalfWidth(1.0f)),
+        centerX - static_cast<int>(ROAD_BOTTOM_HALF),
         SCREEN_H,
-        WHITE_COLOR, 2);
+        EDGE_COLOR,
+        2
+    );
 
     DrawLine(
-        centerX + static_cast<int>(GetRoadHalfWidth(0.0f)),
+        centerX + static_cast<int>(ROAD_TOP_HALF),
         HORIZON_Y,
-        centerX + static_cast<int>(GetRoadHalfWidth(1.0f)),
+        centerX + static_cast<int>(ROAD_BOTTOM_HALF),
         SCREEN_H,
-        WHITE_COLOR, 2);
+        EDGE_COLOR,
+        2
+    );
 
-    // 中央付近の車線区切り線をスクロールさせる
-    constexpr int DASH_COUNT = 14;
-
-    for (int lane = -1; lane <= 1; lane += 2)
+    // 道路中央の破線
+    // 奥では短く細く、手前では長く太くする
+    for (int i = 0; i < 12; ++i)
     {
-        for (int i = 0; i < DASH_COUNT; ++i)
+        float t = (i + 1) / 12.0f;
+        float yRate = t * t;
+
+        int y = HORIZON_Y +
+            static_cast<int>(yRate * (SCREEN_H - HORIZON_Y));
+
+        int dashLength = 5 + static_cast<int>(t * 35.0f);
+        int dashWidth = 1 + static_cast<int>(t * 5.0f);
+
+        // 破線が走行速度に合わせて流れる
+        int drawY = y + static_cast<int>(lineOffset * t);
+
+        if (drawY > SCREEN_H)
         {
-            float t =
-                std::fmod(
-                    static_cast<float>(i) / DASH_COUNT
-                    + scrollOffset,
-                    1.0f);
-
-            float tNext = t + 0.035f;
-
-            if (tNext > 1.0f)
-            {
-                tNext = 1.0f;
-            }
-
-            float y0 = HORIZON_Y
-                + (SCREEN_H - HORIZON_Y) * t * t;
-
-            float y1 = HORIZON_Y
-                + (SCREEN_H - HORIZON_Y)
-                * tNext * tNext;
-
-            float x0 = centerX
-                + lane * GetRoadHalfWidth(t) / 3.0f;
-
-            float x1 = centerX
-                + lane * GetRoadHalfWidth(tNext) / 3.0f;
-
-            DrawLine(
-                static_cast<int>(x0),
-                static_cast<int>(y0),
-                static_cast<int>(x1),
-                static_cast<int>(y1),
-                WHITE_COLOR,
-                static_cast<int>(1 + 3 * t));
+            drawY -= (SCREEN_H - HORIZON_Y);
         }
-    }
 
-    // プレイヤーが右に動くと、道路は左へずれる
-    auto centerAt = [this, playerX](float t)
+        float roadHalfWidth = GetRoadHalfWidth(t);
+        int dashHalfWidth = static_cast<int>(
+            dashWidth * (roadHalfWidth / ROAD_BOTTOM_HALF)
+            );
+
+        if (dashHalfWidth < 1)
         {
-            return SCREEN_W / 2.0f
-                - playerX * GetRoadHalfWidth(t) * 0.75f;
-        };
+            dashHalfWidth = 1;
+        }
+
+        DrawBox(
+            centerX - dashHalfWidth,
+            drawY,
+            centerX + dashHalfWidth,
+            drawY + dashLength,
+            LINE_COLOR,
+            TRUE
+        );
+    }
 }
 
 float Road::GetRoadHalfWidth(float t) const
 {
-    // 遠くでは細く、手前では広くする
-    return 35.0f + 430.0f * t;
+    // t = 0 が地平線、t = 1 が画面下端
+    // 2乗することで、奥から手前への広がりを強調
+    return ROAD_TOP_HALF +
+        (ROAD_BOTTOM_HALF - ROAD_TOP_HALF) * t * t;
 }

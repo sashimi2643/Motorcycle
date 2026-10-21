@@ -9,7 +9,7 @@ void Play::Init()
 	// 開始画面
 	game_mode = TITLE;
 
-	road->Init();
+	road.Init();
 
 	playerX = 0.0f;
 	elapsedTime = 0.0f;
@@ -70,9 +70,9 @@ void Play::Update()
 
 		UpdatePlayer();
 
-		road->Update(deltaTime, speed);
+		road.Update(deltaTime, speed);
 
-		UpdateObstacles();
+		UpdateObject();
 
 		CheckCollision();
 
@@ -115,7 +115,7 @@ void Play::Render()
 		break;
 
 	case PLAY:
-		road->Draw(playerX);
+		road.Draw(playerX);
 
 		for (const Object& object : objects)
 		{
@@ -169,7 +169,7 @@ void Play::ResetGame()
 
 //	obstacles->clear();
 
-	road->Init();
+	road.Init();
 
 	lastUpdateTime = GetNowCount();
 }
@@ -207,7 +207,7 @@ void Play::UpdatePlayer()
 }
 
 // 障害物生成と移動
-void Play::UpdateObstacles()
+void Play::UpdateObject()
 {
 	spawnTimer += deltaTime;
 
@@ -222,59 +222,67 @@ void Play::UpdateObstacles()
 	if (spawnTimer >= interval)
 	{
 		spawnTimer = 0.0f;
-		SpawnObstacle();
+		SpawnObject();
 	}
 
-	/*for (Obstacle& obstacle : obstacles)
+	for (Object& object : objects)
 	{
-		obstacle.Update(deltaTime, speed);
+		object.Update(deltaTime, speed);
 	}
 
-	obstacles.erase(
+	objects.erase(
 		std::remove_if(
-			obstacles.begin(),
-			obstacles.end(),
-			[](const Obstacle& obstacle)
+			objects.begin(),
+			objects.end(),
+			[](const Object& object)
 			{
-				return obstacle.IsOutOfScreen();
+				return object.IsOutOfScreen();
 			}),
-		obstacles.end());*/
+		objects.end());
 }
 
 // 障害物生成
-//void Play::SpawnObstacle()
-//{
-//	Obstacle obstacle;
-//
-//	int lane = std::rand() % 3 - 1;
-//
-//	obstacle.Init(lane);
-//	obstacles.push_back(obstacle);
-//}
+void Play::SpawnObject()
+{
+	Object object;
+
+	// -1、0、1 のいずれかの位置に出現
+	int lane = std::rand() % 3 - 1;
+
+	object.Init(lane);
+
+	objects.push_back(object);
+}
 
 // 衝突判定
-//void Play::CheckCollision()
-//{
-//	for (const Obstacle& obstacle : obstacles)
-//	{
-//		if (!obstacle.IsNearPlayer())
-//		{
-//			continue;
-//		}
-//
-//		if (std::fabs(playerX - obstacle.GetLane()) < 0.27f)
-//		{
-//			game_mode = RESULT;
-//			return;
-//		}
-//	}
-//}
+void Play::CheckCollision()
+{
+	for (const Object& object : objects)
+	{
+		// プレイヤー付近まで来ていなければ無視
+		if (!object.IsNearPlayer())
+		{
+			continue;
+		}
+
+		// プレイヤーと障害物の横方向の距離
+		float distance =
+			std::fabs(playerX - object.GetLane());
+
+		// 一定距離以内ならゲームオーバー
+		if (distance < 0.27f)
+		{
+			game_mode = RESULT;
+			return;
+		}
+	}
+}
 
 // ハンドル描画
 void Play::DrawPlayer()
 {
-	int centerX = 640 + static_cast<int>(playerX * 100.0f);
-	int y = 630;
+	int centerX = 1280 / 2 + static_cast<int>(playerX * 150.0f);
+	int y = 720 - 65;
 
 	DrawLine(
 		centerX - 145, y,
@@ -323,8 +331,3 @@ bool Play::KeyPush(int key)
 //{
 //	this->stage = arg_stage;
 //}
-
-void Play::SetRoad(Road* arg_road)
-{
-	this->road = arg_road;
-}

@@ -2,9 +2,9 @@
 
 namespace
 {
-    constexpr int SCREEN_W = 960;
-    constexpr int SCREEN_H = 640;
-    constexpr int HORIZON_Y = 140;
+    constexpr int SCREEN_W = 1280;
+    constexpr int SCREEN_H = 720;
+    constexpr int HORIZON_Y = 160;
     constexpr int CENTER_X = SCREEN_W / 2;
 
     constexpr unsigned int OBSTACLE_COLOR =
@@ -62,11 +62,18 @@ void Object::Draw(float playerX) const
     {
         int stripeY = top + static_cast<int>(h * 0.45f);
 
+        int lineWidth = static_cast<int>(t * 5);
+
+        if (lineWidth < 1)
+        {
+            lineWidth = 1;
+        }
+
         DrawLine(
             left, stripeY,
             right, stripeY,
             DETAIL_COLOR,
-            std::max(1, static_cast<int>(t * 5)));
+            lineWidth);
     }
 
     // ògê¸
@@ -77,7 +84,19 @@ void Object::Draw(float playerX) const
 
 float Object::GetDepthRate() const
 {
-    return 1.0f - std::clamp(z, 0.0f, 1.0f);
+    float depth = z;
+
+    if (depth < 0.0f)
+    {
+        depth = 0.0f;
+    }
+
+    if (depth > 1.0f)
+    {
+        depth = 1.0f;
+    }
+
+    return 1.0f - depth;
 }
 
 bool Object::IsOutOfScreen() const

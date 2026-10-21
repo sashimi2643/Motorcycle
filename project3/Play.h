@@ -40,9 +40,9 @@ class Play : public ProcessBase
 	// ï‚èïèàóù
 	void ResetGame();
 	void UpdatePlayer();
-	void UpdateObstacles();
+	void UpdateObject();
 	void CheckCollision();
-	void SpawnObstacle();
+	void SpawnObject();
 	void DrawPlayer();
 
 public:
@@ -103,5 +103,4 @@ public:
 	//void SetTitle(Title* arg_title);
 	//void SetResult(Result* arg_result);
 	//void SetStage(Stage* arg_stage);
-	void SetRoad(Road* arg_road);
 };

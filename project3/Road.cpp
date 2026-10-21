@@ -2,9 +2,9 @@
 
 namespace
 {
-    constexpr int SCREEN_W = 960;
-    constexpr int SCREEN_H = 640;
-    constexpr int HORIZON_Y = 140;
+    constexpr int SCREEN_W = 1280;
+    constexpr int SCREEN_H = 720;
+    constexpr int HORIZON_Y = 160;
 
     constexpr unsigned int SKY_COLOR =
         0x87CEEB;

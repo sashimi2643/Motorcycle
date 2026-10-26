@@ -14,7 +14,7 @@ void Play::Init()
 	playerX = 0.0f;
 	elapsedTime = 0.0f;
 	spawnTimer = 0.0f;
-	speed = 0.28f;
+	speed = 0.40f;
 	score = 0;
 
 
@@ -61,11 +61,12 @@ void Play::Update()
 		elapsedTime += deltaTime;
 
 		// 徐々に速度を上げる
-		speed = 0.28f + elapsedTime * 0.008f;
+		speed = 0.40f + elapsedTime * 0.008f;
 
-		if (speed > 0.65f)
+		// 最大スピードの設定
+		if (speed > 0.77f)
 		{
-			speed = 0.65f;
+			speed = 0.77f;
 		}
 
 		UpdatePlayer();
@@ -164,7 +165,7 @@ void Play::ResetGame()
 	playerX = 0.0f;
 	elapsedTime = 0.0f;
 	spawnTimer = 0.0f;
-	speed = 0.28f;
+	speed = 0.40f;
 	score = 0;
 
 	objects.clear();
@@ -286,14 +287,12 @@ void Play::DrawPlayer()
 	const int SCREEN_W = 1280;
 	const int SCREEN_H = 720;
 
-	// プレイヤーの左右移動
-	int centerX = SCREEN_W / 2
-		+ static_cast<int>(playerX * 150.0f);
+	// Playerは常に画面中央に固定
+	int centerX = SCREEN_W / 2;
 
-	// コックピットの配置範囲
 	const int cockpitTop = 550;
 
-	// バイク前方のカウル
+	// バイク本体
 	DrawTriangle(
 		centerX - 170, SCREEN_H,
 		centerX + 170, SCREEN_H,
@@ -315,6 +314,7 @@ void Play::DrawPlayer()
 		GetColor(35, 65, 65), TRUE
 	);
 
+	// 速度表示
 	DrawFormatString(
 		centerX - 45, cockpitTop + 51,
 		GetColor(100, 255, 180),
@@ -322,7 +322,7 @@ void Play::DrawPlayer()
 		static_cast<int>(speed * 100)
 	);
 
-	// ミラーの支柱
+	// ハンドルの支柱
 	DrawLine(
 		centerX - 100, cockpitTop + 50,
 		centerX - 145, cockpitTop + 5,
@@ -335,7 +335,7 @@ void Play::DrawPlayer()
 		GetColor(35, 35, 35), 6
 	);
 
-	// 左右のミラー
+	// ミラー
 	DrawBox(
 		centerX - 180, cockpitTop - 5,
 		centerX - 120, cockpitTop + 25,
@@ -348,7 +348,6 @@ void Play::DrawPlayer()
 		GetColor(25, 30, 35), TRUE
 	);
 
-	// ミラーの反射面
 	DrawBox(
 		centerX - 173, cockpitTop,
 		centerX - 127, cockpitTop + 20,
@@ -374,7 +373,6 @@ void Play::DrawPlayer()
 		GetColor(25, 25, 25), 18
 	);
 
-	// グリップ
 	DrawCircle(
 		centerX - 230, cockpitTop + 100,
 		13, GetColor(10, 10, 10), TRUE

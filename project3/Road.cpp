@@ -6,7 +6,7 @@ namespace
     constexpr int SCREEN_H = 720;
 
     // 地平線を上げて、遠近感を強める
-    constexpr int HORIZON_Y = 120;
+    constexpr int HORIZON_Y = 360;
 
     // 道路の幅
     constexpr float ROAD_BOTTOM_HALF =620.0f;
@@ -49,98 +49,110 @@ void Road::Update(float deltaTime, float speed)
 //	描画処理
 void Road::Draw(float playerX) const
 {
-    // 空
-    DrawBox(
-        0, 0, SCREEN_W, HORIZON_Y,
-        SKY_COLOR, TRUE
-    );
+    const int baseCenterX = SCREEN_W / 2;
 
-    // 地面
-    DrawBox(
-        0, HORIZON_Y, SCREEN_W, SCREEN_H,
-        GROUND_COLOR, TRUE
-    );
+    // 空と地面
+    DrawBox(0, 0, SCREEN_W, HORIZON_Y,
+        SKY_COLOR, TRUE);
 
-    const int centerX = SCREEN_W / 2;
+    DrawBox(0, HORIZON_Y, SCREEN_W, SCREEN_H,
+        GROUND_COLOR, TRUE);
 
-    // 道路を横線ごとに描画し、奥から手前へ広がる形にする
+    // 道路の各高さを描画
     for (int y = HORIZON_Y; y < SCREEN_H; ++y)
     {
-        float t = static_cast<float>(y - HORIZON_Y) /
-            static_cast<float>(SCREEN_H - HORIZON_Y);
+        // 0 = 地平線、1 = 画面手前
+        float p = static_cast<float>(y - HORIZON_Y)
+            / static_cast<float>(SCREEN_H - HORIZON_Y);
 
-        float halfWidth = GetRoadHalfWidth(t);
+        // 地平線を支点に、手前ほど横へ移動
+        float shift = -playerX * 300.0f * p;
 
-        int leftX = centerX - static_cast<int>(halfWidth);
-        int rightX = centerX + static_cast<int>(halfWidth);
+        float centerX = baseCenterX + shift;
 
-        DrawLine(
-            leftX, y, rightX, y,
-            ROAD_COLOR, 1
-        );
+        // 道路の幅は高さに比例して直線的に広がる
+        float halfWidth = ROAD_TOP_HALF
+            + (ROAD_BOTTOM_HALF - ROAD_TOP_HALF) * p;
 
-        // 道路の左右の白線
+        int leftX = static_cast<int>(centerX - halfWidth);
+        int rightX = static_cast<int>(centerX + halfWidth);
+
+        // 道路本体
+        DrawLine(leftX, y, rightX, y, ROAD_COLOR, 1);
+
+        // 道路の左右端
         DrawPixel(leftX, y, EDGE_COLOR);
         DrawPixel(rightX, y, EDGE_COLOR);
     }
 
-    // 道路の左右の境界線を直線で描画
+    // 左右の境界線を直線で描画
+    float bottomShift = -playerX * 300.0f;
+    int bottomCenterX =
+        baseCenterX + static_cast<int>(bottomShift);
+
     DrawLine(
-        centerX - static_cast<int>(ROAD_TOP_HALF),
+        baseCenterX - static_cast<int>(ROAD_TOP_HALF),
         HORIZON_Y,
-        centerX - static_cast<int>(ROAD_BOTTOM_HALF),
+        bottomCenterX - static_cast<int>(ROAD_BOTTOM_HALF),
         SCREEN_H,
-        EDGE_COLOR,
-        2
+        EDGE_COLOR, 2
     );
 
     DrawLine(
-        centerX + static_cast<int>(ROAD_TOP_HALF),
+        baseCenterX + static_cast<int>(ROAD_TOP_HALF),
         HORIZON_Y,
-        centerX + static_cast<int>(ROAD_BOTTOM_HALF),
+        bottomCenterX + static_cast<int>(ROAD_BOTTOM_HALF),
         SCREEN_H,
-        EDGE_COLOR,
-        2
+        EDGE_COLOR, 2
     );
 
-    // 道路中央の破線
-    // 奥では短く細く、手前では長く太くする
-    for (int i = 0; i < 12; ++i)
+    // 中央の破線
+    // 各破線の高さに合わせて横移動量を計算
+    const float dashSpacing = 80.0f;
+    float offset = lineOffset;
+
+    while (offset >= dashSpacing)
     {
-        float t = (i + 1) / 12.0f;
-        float yRate = t * t;
+        offset -= dashSpacing;
+    }
 
-        int y = HORIZON_Y +
-            static_cast<int>(yRate * (SCREEN_H - HORIZON_Y));
+    for (int i = 0; i < 20; i++)
+    {
+        float t = (i * dashSpacing + offset) / 600.0f;
 
-        int dashLength = 5 + static_cast<int>(t * 35.0f);
-        int dashWidth = 1 + static_cast<int>(t * 5.0f);
+        if (t < 0.0f || t > 1.0f)
+            continue;
 
-        // 破線が走行速度に合わせて流れる
-        int drawY = y + static_cast<int>(lineOffset * t);
+        float p = t * t;
 
-        if (drawY > SCREEN_H)
-        {
-            drawY -= (SCREEN_H - HORIZON_Y);
-        }
+        // 破線の上端
+        float y1 = HORIZON_Y
+            + p * (SCREEN_H - HORIZON_Y);
 
-        float roadHalfWidth = GetRoadHalfWidth(t);
-        int dashHalfWidth = static_cast<int>(
-            dashWidth * (roadHalfWidth / ROAD_BOTTOM_HALF)
-            );
+        // 破線の下端は少し手前
+        float t2 = t + 0.035f;
 
-        if (dashHalfWidth < 1)
-        {
-            dashHalfWidth = 1;
-        }
+        if (t2 > 1.0f)
+            t2 = 1.0f;
 
-        DrawBox(
-            centerX - dashHalfWidth,
-            drawY,
-            centerX + dashHalfWidth,
-            drawY + dashLength,
+        float p2 = t2 * t2;
+
+        float y2 = HORIZON_Y
+            + p2 * (SCREEN_H - HORIZON_Y);
+
+        // 道路の移動量を上下で計算する
+        float shift1 = -playerX * 300.0f * p;
+        float shift2 = -playerX * 300.0f * p2;
+
+        float x1 = SCREEN_W / 2.0f + shift1;
+        float x2 = SCREEN_W / 2.0f + shift2;
+
+        // 奥から手前に向かって傾く破線
+        DrawLine(
+            (int)x1, (int)y1,
+            (int)x2, (int)y2,
             LINE_COLOR,
-            TRUE
+            3 + (int)(t * 3.0f)
         );
     }
 }

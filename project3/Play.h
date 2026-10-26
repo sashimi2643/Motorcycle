@@ -9,8 +9,9 @@
 #include "Base.h"
 #include "Road.h"
 #include "Object.h"
-#include <vector>
+#include "Background.h"
 
+#include <vector>
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -33,9 +34,10 @@ class Play : public ProcessBase
 	//Stage* stage = nullptr;
 
 
-	// “¹˜H‚ÆáŠQ•¨
+	// “¹˜HEáŠQ•¨E”wŒi
 	Road road;
 	std::vector<Object> objects;
+	Background background;
 
 	// •â•ˆ—
 	void ResetGame();

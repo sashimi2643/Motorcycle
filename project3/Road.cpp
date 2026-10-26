@@ -51,13 +51,6 @@ void Road::Draw(float playerX) const
 {
     const int baseCenterX = SCREEN_W / 2;
 
-    // ãÛÇ∆ínñ 
-    DrawBox(0, 0, SCREEN_W, HORIZON_Y,
-        SKY_COLOR, TRUE);
-
-    DrawBox(0, HORIZON_Y, SCREEN_W, SCREEN_H,
-        GROUND_COLOR, TRUE);
-
     // ìπòHÇÃäeçÇÇ≥Çï`âÊ
     for (int y = HORIZON_Y; y < SCREEN_H; ++y)
     {

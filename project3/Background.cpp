@@ -7,7 +7,7 @@ namespace
     constexpr int SCREEN_H = 720;
 
     // 地平線の高さ
-    constexpr int HORIZON_Y = 120;
+    constexpr int HORIZON_Y = 360;
 
     // 道路の幅（Road.cpp / Object.cpp と合わせる）
     constexpr float ROAD_TOP_HALF = 8.0f;
@@ -98,28 +98,28 @@ void Background::Draw(float playerX) const
     // ----------------------------------------
     DrawTriangle(
         0, HORIZON_Y,
-        180, 55,
+        180, 255,
         390, HORIZON_Y,
         FAR_MOUNTAIN_COLOR, TRUE
     );
 
     DrawTriangle(
         250, HORIZON_Y,
-        480, 70,
+        480, 270,
         700, HORIZON_Y,
         FAR_MOUNTAIN_COLOR, TRUE
     );
 
     DrawTriangle(
         570, HORIZON_Y,
-        830, 48,
+        830, 248,
         1080, HORIZON_Y,
         FAR_MOUNTAIN_COLOR, TRUE
     );
 
     DrawTriangle(
         900, HORIZON_Y,
-        1100, 68,
+        1100, 268,
         SCREEN_W, HORIZON_Y,
         FAR_MOUNTAIN_COLOR, TRUE
     );
@@ -127,14 +127,14 @@ void Background::Draw(float playerX) const
     // 手前側の山
     DrawTriangle(
         0, HORIZON_Y,
-        260, 90,
+        260, 290,
         510, HORIZON_Y,
         NEAR_MOUNTAIN_COLOR, TRUE
     );
 
     DrawTriangle(
         650, HORIZON_Y,
-        900, 85,
+        900, 285,
         SCREEN_W, HORIZON_Y,
         NEAR_MOUNTAIN_COLOR, TRUE
     );
@@ -143,7 +143,7 @@ void Background::Draw(float playerX) const
     // 4. 草地
     // ----------------------------------------
     DrawBox(
-        0, HORIZON_Y + 1,
+        0, HORIZON_Y,
         SCREEN_W, SCREEN_H,
         GRASS_COLOR, TRUE
     );

@@ -19,6 +19,8 @@ void Play::Init()
 
 
 	lastUpdateTime = GetNowCount();
+
+	background.Init();
 }
 
 // “ü—Íˆ—
@@ -77,6 +79,8 @@ void Play::Update()
 
 		CheckCollision();
 
+		background.Update(deltaTime, speed);
+
 		if (game_mode == PLAY)
 		{
 			score = static_cast<int>(elapsedTime * 10.0f);
@@ -116,13 +120,16 @@ void Play::Render()
 		break;
 
 	case PLAY:
+		// 1. ”wŒi‚ğ•`‰æ
+		background.Draw(playerX);
+		// 2. “¹˜H‚ğ•`‰æ
 		road.Draw(playerX);
-
+		// 3. áŠQ•¨‚ğ•`‰æ
 		for (const Object& object : objects)
 		{
 			object.Draw(playerX);
 		}
-
+		// 4. ƒvƒŒƒCƒ„[‚ğ•`‰æ
 		DrawPlayer();
 
 		DrawFormatString(
@@ -280,7 +287,6 @@ void Play::CheckCollision()
 }
 
 // ƒnƒ“ƒhƒ‹•`‰æ
-
 void Play::DrawPlayer()
 {
 	// ‰æ–ÊƒTƒCƒY

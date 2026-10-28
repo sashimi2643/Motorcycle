@@ -46,6 +46,7 @@ class Play : public ProcessBase
 	void CheckCollision();
 	void SpawnObject();
 	void DrawPlayer();
+	void DrawHandleImage();
 
 public:
 
@@ -70,6 +71,17 @@ public:
 	int score = 0;
 	int lastUpdateTime = 0;
 
+	// ハンドルに関する変数 -----------------
+	// ハンドル画像
+	int handle_image = -1;
+	// ハンドルの回転角度（ラジアン）
+	float handleAngle = 0.0f;
+	// 左右移動の速度
+	float playerMoveVelocity = 0.0f;
+	// 左右移動の目標位置
+	float targetPlayerX = 0.0f;
+	// --------------------------------------
+
 	// キー入力
 	char Key[256]{};
 	char OldKey[256]{};
@@ -80,6 +92,7 @@ public:
 	int frame;
 	int count;
 	bool game;
+
 
 	// SEの変数
 	int se_mov_break;  // 破壊中の音

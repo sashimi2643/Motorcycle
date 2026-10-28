@@ -11,6 +11,7 @@ private:
 
 	// ‰œs‚«‚©‚ç‰æ–Êã‚ÌˆÊ’u‚ğŒvZ
 	float GetDepthRate() const;
+
 public:
 	//	‰Šú‰»ˆ—
 	void Init(int lane);

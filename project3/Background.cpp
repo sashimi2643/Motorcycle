@@ -52,6 +52,8 @@ namespace
 void Background::Init()
 {
     scrollOffset = 0.0f;
+    background_image = LoadGraph(_T("data/background.png"));
+    kusa_image = LoadGraph(_T("data/kusa.png"));
 }
 
 // 更新
@@ -75,78 +77,81 @@ void Background::Draw(float playerX) const
     // ----------------------------------------
     // 1. 空
     // ----------------------------------------
-    DrawBox(
-        0, 0,
-        SCREEN_W, HORIZON_Y + 1,
-        SKY_COLOR, TRUE
-    );
+    //DrawBox(
+    //    0, 0,
+    //    SCREEN_W, HORIZON_Y + 1,
+    //    SKY_COLOR, TRUE
+    //);
 
-    // ----------------------------------------
-    // 2. 雲
-    // ----------------------------------------
-    // 画像素材を使わず、複数の楕円で雲を表現
-    DrawOval(180, 55, 230, 68, CLOUD_COLOR, TRUE);
-    DrawOval(215, 43, 260, 67, CLOUD_COLOR, TRUE);
-    DrawOval(245, 55, 285, 68, CLOUD_COLOR, TRUE);
+    //// ----------------------------------------
+    //// 2. 雲
+    //// ----------------------------------------
+    //// 画像素材を使わず、複数の楕円で雲を表現
+    //DrawOval(180, 55, 230, 68, CLOUD_COLOR, TRUE);
+    //DrawOval(215, 43, 260, 67, CLOUD_COLOR, TRUE);
+    //DrawOval(245, 55, 285, 68, CLOUD_COLOR, TRUE);
 
-    DrawOval(930, 65, 980, 77, CLOUD_COLOR, TRUE);
-    DrawOval(960, 50, 1010, 75, CLOUD_COLOR, TRUE);
-    DrawOval(990, 64, 1035, 77, CLOUD_COLOR, TRUE);
+    //DrawOval(930, 65, 980, 77, CLOUD_COLOR, TRUE);
+    //DrawOval(960, 50, 1010, 75, CLOUD_COLOR, TRUE);
+    //DrawOval(990, 64, 1035, 77, CLOUD_COLOR, TRUE);
 
-    // ----------------------------------------
-    // 3. 遠くの山
-    // ----------------------------------------
-    DrawTriangle(
-        0, HORIZON_Y,
-        180, 255,
-        390, HORIZON_Y,
-        FAR_MOUNTAIN_COLOR, TRUE
-    );
+    //// ----------------------------------------
+    //// 3. 遠くの山
+    //// ----------------------------------------
+    //DrawTriangle(
+    //    0, HORIZON_Y,
+    //    180, 255,
+    //    390, HORIZON_Y,
+    //    FAR_MOUNTAIN_COLOR, TRUE
+    //);
 
-    DrawTriangle(
-        250, HORIZON_Y,
-        480, 270,
-        700, HORIZON_Y,
-        FAR_MOUNTAIN_COLOR, TRUE
-    );
+    //DrawTriangle(
+    //    250, HORIZON_Y,
+    //    480, 270,
+    //    700, HORIZON_Y,
+    //    FAR_MOUNTAIN_COLOR, TRUE
+    //);
 
-    DrawTriangle(
-        570, HORIZON_Y,
-        830, 248,
-        1080, HORIZON_Y,
-        FAR_MOUNTAIN_COLOR, TRUE
-    );
+    //DrawTriangle(
+    //    570, HORIZON_Y,
+    //    830, 248,
+    //    1080, HORIZON_Y,
+    //    FAR_MOUNTAIN_COLOR, TRUE
+    //);
 
-    DrawTriangle(
-        900, HORIZON_Y,
-        1100, 268,
-        SCREEN_W, HORIZON_Y,
-        FAR_MOUNTAIN_COLOR, TRUE
-    );
+    //DrawTriangle(
+    //    900, HORIZON_Y,
+    //    1100, 268,
+    //    SCREEN_W, HORIZON_Y,
+    //    FAR_MOUNTAIN_COLOR, TRUE
+    //);
 
-    // 手前側の山
-    DrawTriangle(
-        0, HORIZON_Y,
-        260, 290,
-        510, HORIZON_Y,
-        NEAR_MOUNTAIN_COLOR, TRUE
-    );
+    //// 手前側の山
+    //DrawTriangle(
+    //    0, HORIZON_Y,
+    //    260, 290,
+    //    510, HORIZON_Y,
+    //    NEAR_MOUNTAIN_COLOR, TRUE
+    //);
 
-    DrawTriangle(
-        650, HORIZON_Y,
-        900, 285,
-        SCREEN_W, HORIZON_Y,
-        NEAR_MOUNTAIN_COLOR, TRUE
-    );
+    //DrawTriangle(
+    //    650, HORIZON_Y,
+    //    900, 285,
+    //    SCREEN_W, HORIZON_Y,
+    //    NEAR_MOUNTAIN_COLOR, TRUE
+    //);
+
+	DrawGraph(0, -1, background_image, TRUE);
+    DrawGraph(0, 360, kusa_image, TRUE);
 
     // ----------------------------------------
     // 4. 草地
     // ----------------------------------------
-    DrawBox(
+   /* DrawBox(
         0, HORIZON_Y,
         SCREEN_W, SCREEN_H,
         GRASS_COLOR, TRUE
-    );
+    );*/
 
     // ----------------------------------------
     // 5. 森の木

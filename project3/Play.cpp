@@ -30,6 +30,8 @@ void Play::Init()
 	SetTransColor(0, 0, 0);
 
 	tree.Init();
+
+	visorRain.Init();
 }
 
 // 入力処理
@@ -72,12 +74,12 @@ void Play::Update()
 		elapsedTime += deltaTime;
 
 		// 徐々に速度を上げる
-		speed = 0.40f + elapsedTime * 0.008f;
+		speed = 0.50f + elapsedTime * 0.01f;
 
 		// 最大スピードの設定
-		if (speed > 0.77f)
+		if (speed > 0.87f)
 		{
-			speed = 0.77f;
+			speed = 0.87f;
 		}
 
 		UpdatePlayer();
@@ -88,9 +90,12 @@ void Play::Update()
 
 		UpdateObject();
 
-		//CheckCollision();
+		// 当たり判定
+		CheckCollision();
 
 		background.Update(deltaTime, speed);
+
+		visorRain.Update(deltaTime, speed);
 
 		if (game_mode == PLAY)
 		{
@@ -152,6 +157,14 @@ void Play::Render()
 		DrawFormatString(
 			20, 50, 0xFFFFFF,
 			_T("SPEED: %.2f"), speed);
+
+		visorRain.Draw();
+
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
+
+		DrawBox(0, 0, 1280, 720, GetColor(0, 0, 0), TRUE);
+
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	break;
 
 	case RESULT:
@@ -368,7 +381,7 @@ void Play::DrawHandleImage()
 
 	// 画面下部の中央を基準にする
 	int handleX = SCREEN_W / 2;
-	int handleY = SCREEN_H - 125;
+	int handleY = SCREEN_H - 75;
 
 	// プレイヤーの左右位置に応じて少し横に移動
 	handleX += static_cast<int>(playerX * 45.0f);

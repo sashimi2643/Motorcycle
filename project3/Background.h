@@ -6,9 +6,7 @@
 class Background
 {
 private:
-    // ”wŒi‚Ì–Í—l‚ð—¬‚·‚½‚ß‚ÌˆÚ“®—Ê
-    float scrollOffset = 0.0f;
-
+	// ”wŒi‰æ‘œ‚Ìƒnƒ“ƒhƒ‹
     int background_image = -1;
     int kusa_image = -1;
 public:

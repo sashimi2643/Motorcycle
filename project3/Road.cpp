@@ -12,12 +12,6 @@ namespace
     constexpr float ROAD_BOTTOM_HALF =620.0f;
     constexpr float ROAD_TOP_HALF = 8.0f;
 
-    const unsigned int SKY_COLOR =
-        GetColor(100, 180, 235);
-
-    const unsigned int GROUND_COLOR =
-        GetColor(65, 135, 65);
-
     const unsigned int ROAD_COLOR =
         GetColor(65, 65, 70);
 

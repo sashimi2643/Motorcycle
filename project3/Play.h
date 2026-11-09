@@ -11,6 +11,7 @@
 #include "Object.h"
 #include "Background.h"
 #include "Tree.h"
+#include "VisorRain.h"
 
 #include <vector>
 #include <algorithm>
@@ -40,6 +41,7 @@ class Play : public ProcessBase
 	std::vector<Object> objects;
 	Background background;
 	Tree tree;
+	VisorRain visorRain;
 
 	// •â•ˆ—
 	void ResetGame();
@@ -67,7 +69,7 @@ public:
 	// ƒQ[ƒ€is
 	float elapsedTime = 0.0f;
 	float spawnTimer = 0.0f;
-	float speed = 0.28f;
+	float speed = 0.40f;
 	float deltaTime = 0.0f;
 
 	int score = 0;

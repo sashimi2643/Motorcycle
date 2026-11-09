@@ -10,6 +10,7 @@
 #include "Road.h"
 #include "Object.h"
 #include "Background.h"
+#include "Tree.h"
 
 #include <vector>
 #include <algorithm>
@@ -38,6 +39,7 @@ class Play : public ProcessBase
 	Road road;
 	std::vector<Object> objects;
 	Background background;
+	Tree tree;
 
 	// •â•ˆ—
 	void ResetGame();

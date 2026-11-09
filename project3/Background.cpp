@@ -158,89 +158,89 @@ void Background::Draw(float playerX) const
     // ----------------------------------------
     // 左右に木を並べ、遠くは小さく、
     // 手前は大きくなるように描画する
-    for (int side = -1; side <= 1; side += 2)
-    {
-        for (int i = 0; i < 15; i++)
-        {
-            // 0に近いほど遠く、1に近いほど手前
-            float depth = (i + 1) / 15.0f;
+    //for (int side = -1; side <= 1; side += 2)
+    //{
+    //    for (int i = 0; i < 15; i++)
+    //    {
+    //        // 0に近いほど遠く、1に近いほど手前
+    //        float depth = (i + 1) / 15.0f;
 
-            // 木の高さと道路幅を遠近法で変化させる
-            float perspective = depth * depth;
+    //        // 木の高さと道路幅を遠近法で変化させる
+    //        float perspective = depth * depth;
 
-            float y = HORIZON_Y
-                + perspective * (SCREEN_H - HORIZON_Y);
+    //        float y = HORIZON_Y
+    //            + perspective * (SCREEN_H - HORIZON_Y);
 
-            float roadHalfWidth = ROAD_TOP_HALF
-                + (ROAD_BOTTOM_HALF - ROAD_TOP_HALF)
-                * perspective;
+    //        float roadHalfWidth = ROAD_TOP_HALF
+    //            + (ROAD_BOTTOM_HALF - ROAD_TOP_HALF)
+    //            * perspective;
 
-            // 道路の左右への移動に合わせて木も少し動かす
-            float roadShift =
-                -playerX * ROAD_SHIFT_AMOUNT * perspective;
+    //        // 道路の左右への移動に合わせて木も少し動かす
+    //        float roadShift =
+    //            -playerX * ROAD_SHIFT_AMOUNT * perspective;
 
-            // 道路の外側に木を配置する
-            float treeX = centerX + roadShift
-                + side * (roadHalfWidth + 25.0f
-                    + depth * 100.0f);
+    //        // 道路の外側に木を配置する
+    //        float treeX = centerX + roadShift
+    //            + side * (roadHalfWidth + 25.0f
+    //                + depth * 100.0f);
 
-            // 木の高さ
-            int treeHeight = 15 + (int)(depth * 125.0f);
+    //        // 木の高さ
+    //        int treeHeight = 15 + (int)(depth * 125.0f);
 
-            // 木の横幅
-            int treeWidth = 5 + (int)(depth * 30.0f);
+    //        // 木の横幅
+    //        int treeWidth = 5 + (int)(depth * 30.0f);
 
-            // 走行に合わせた草地の模様の移動
-            float moving = std::fmod(
-                scrollOffset * (0.15f + depth * 0.5f),
-                24.0f
-            );
+    //        // 走行に合わせた草地の模様の移動
+    //        float moving = std::fmod(
+    //            scrollOffset * (0.15f + depth * 0.5f),
+    //            24.0f
+    //        );
 
-            // 手前ほど少し大きく上下に動かして走行感を出す
-            int treeY = (int)y + (int)moving;
+    //        // 手前ほど少し大きく上下に動かして走行感を出す
+    //        int treeY = (int)y + (int)moving;
 
-            int x = (int)treeX;
-            int topY = treeY - treeHeight;
+    //        int x = (int)treeX;
+    //        int topY = treeY - treeHeight;
 
-            // 木の幹
-            int trunkWidth = treeWidth / 4 + 1;
+    //        // 木の幹
+    //        int trunkWidth = treeWidth / 4 + 1;
 
-            DrawBox(
-                x - trunkWidth / 2,
-                treeY - treeHeight / 3,
-                x + trunkWidth / 2,
-                treeY,
-                TRUNK_COLOR,
-                TRUE
-            );
+    //        DrawBox(
+    //            x - trunkWidth / 2,
+    //            treeY - treeHeight / 3,
+    //            x + trunkWidth / 2,
+    //            treeY,
+    //            TRUNK_COLOR,
+    //            TRUE
+    //        );
 
-            // 木の葉：三角形を重ねて針葉樹を表現
-            DrawTriangle(
-                x, topY,
-                x - treeWidth, treeY,
-                x + treeWidth, treeY,
-                TREE_DARK_COLOR, TRUE
-            );
+    //        // 木の葉：三角形を重ねて針葉樹を表現
+    //        DrawTriangle(
+    //            x, topY,
+    //            x - treeWidth, treeY,
+    //            x + treeWidth, treeY,
+    //            TREE_DARK_COLOR, TRUE
+    //        );
 
-            DrawTriangle(
-                x, topY + treeHeight / 4,
-                x - treeWidth * 3 / 4,
-                treeY - treeHeight / 4,
-                x + treeWidth * 3 / 4,
-                treeY - treeHeight / 4,
-                TREE_MIDDLE_COLOR, TRUE
-            );
+    //        DrawTriangle(
+    //            x, topY + treeHeight / 4,
+    //            x - treeWidth * 3 / 4,
+    //            treeY - treeHeight / 4,
+    //            x + treeWidth * 3 / 4,
+    //            treeY - treeHeight / 4,
+    //            TREE_MIDDLE_COLOR, TRUE
+    //        );
 
-            DrawTriangle(
-                x, topY + treeHeight / 2,
-                x - treeWidth / 2,
-                treeY - treeHeight / 2,
-                x + treeWidth / 2,
-                treeY - treeHeight / 2,
-                TREE_LIGHT_COLOR, TRUE
-            );
-        }
-    }
+    //        DrawTriangle(
+    //            x, topY + treeHeight / 2,
+    //            x - treeWidth / 2,
+    //            treeY - treeHeight / 2,
+    //            x + treeWidth / 2,
+    //            treeY - treeHeight / 2,
+    //            TREE_LIGHT_COLOR, TRUE
+    //        );
+    //    }
+    //}
 
     // ----------------------------------------
     // 6. 草地に流れる小さな模様

@@ -28,6 +28,8 @@ void Play::Init()
 
 	// “§‰ßF‚Ìİ’è‚ğŒ³‚É–ß‚·
 	SetTransColor(0, 0, 0);
+
+	tree.Init();
 }
 
 // “ü—Íˆ—
@@ -82,9 +84,11 @@ void Play::Update()
 
 		road.Update(deltaTime, speed);
 
+		tree.Update(deltaTime, speed);
+
 		UpdateObject();
 
-		CheckCollision();
+		//CheckCollision();
 
 		background.Update(deltaTime, speed);
 
@@ -129,14 +133,16 @@ void Play::Render()
 	case PLAY:
 		// 1. ”wŒi‚ğ•`‰æ
 		background.Draw(playerX);
-		// 2. “¹˜H‚ğ•`‰æ
+		// 2. –Ø‚ğ•`‰æ
+		tree.Draw(playerX);
+		// 3. “¹˜H‚ğ•`‰æ
 		road.Draw(playerX);
-		// 3. áŠQ•¨‚ğ•`‰æ
+		// 4. áŠQ•¨‚ğ•`‰æ
 		for (const Object& object : objects)
 		{
 			object.Draw(playerX);
 		}
-		// 4. ƒvƒŒƒCƒ„[‚ğ•`‰æ
+		// 5. ƒvƒŒƒCƒ„[‚ğ•`‰æ
 		DrawHandleImage();
 
 		DrawFormatString(

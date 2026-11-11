@@ -91,7 +91,7 @@ void Play::Update()
 		UpdateObject();
 
 		// “–‚½‚è”»’è
-		CheckCollision();
+		//CheckCollision();
 
 		background.Update(deltaTime, speed);
 

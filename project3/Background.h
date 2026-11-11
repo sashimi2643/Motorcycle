@@ -9,6 +9,8 @@ private:
 	// ”wŒi‰æ‘œ‚Ìƒnƒ“ƒhƒ‹
     int background_image = -1;
     int kusa_image = -1;
+
+    int kusa_y = 0;
 public:
     // ‰Šú‰»
     void Init();

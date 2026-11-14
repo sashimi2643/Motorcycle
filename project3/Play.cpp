@@ -74,7 +74,7 @@ void Play::Update()
 		elapsedTime += deltaTime;
 
 		// 徐々に速度を上げる
-		speed = 0.50f + elapsedTime * 0.01f;
+		speed = 0.50f + elapsedTime * 0.005f;
 
 		// 最大スピードの設定
 		if (speed > 0.87f)
@@ -91,11 +91,11 @@ void Play::Update()
 		UpdateObject();
 
 		// 当たり判定
-		//CheckCollision();
+		CheckCollision();
 
 		background.Update(deltaTime, speed);
 
-		visorRain.Update(deltaTime, speed);
+		//visorRain.Update(deltaTime, speed);
 
 		if (game_mode == PLAY)
 		{
@@ -158,7 +158,7 @@ void Play::Render()
 			20, 50, 0xFFFFFF,
 			_T("SPEED: %.2f"), speed);
 
-		visorRain.Draw();
+		//visorRain.Draw();
 
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
 
@@ -334,26 +334,65 @@ void Play::UpdateObject()
 // 障害物生成
 void Play::SpawnObject()
 {
-	// -2～2の5レーンからランダムに選択
-	std::uniform_int_distribution<int> laneDist(-2, 2);
+	// 5レーンを用意
+	std::vector<int> laneCandidates = { -2, -1, 0, 1, 2 };
 
-	int randomLane = 0;
+	// レーンの順番をランダムにする
+	std::shuffle(laneCandidates.begin(), laneCandidates.end(), mt);
 
-	// 直前と同じレーンにならないようにする
-	do
+	// 20秒経過するまでは障害物を1つにする
+	if (elapsedTime < 20.0f)
 	{
-		randomLane = laneDist(mt);
+		int lane1 = laneCandidates[0];
 
-	} while (randomLane == previousLane);
+		// 直前と同じレーンにならないようにする
+		while (lane1 == previousLane1)
+		{
+			std::shuffle(laneCandidates.begin(), laneCandidates.end(), mt);
+			lane1 = laneCandidates[0];
+		}
 
-	// 今回のレーンを記録
-	previousLane = randomLane;
+		Object object1;
+		object1.Init(lane1);
+		objects.push_back(object1);
 
-	// 障害物を生成
-	Object newObject;
-	newObject.Init(randomLane);
+		// 使用したレーンを保存
+		previousLane1 = lane1;
+		previousLane2 = 99;
+	}
+	else
+	{
+		// 直前の2レーンを候補から除外
+		laneCandidates.erase(
+			std::remove_if(
+				laneCandidates.begin(),
+				laneCandidates.end(),
+				[this](int lane)
+				{
+					return lane == previousLane1 ||
+						lane == previousLane2;
+				}),
+			laneCandidates.end());
 
-	objects.push_back(newObject);
+		// 残ったレーンをランダムにする
+		std::shuffle(laneCandidates.begin(), laneCandidates.end(), mt);
+
+		// 障害物を2つ生成
+		int lane1 = laneCandidates[0];
+		int lane2 = laneCandidates[1];
+
+		Object object1;
+		object1.Init(lane1);
+		objects.push_back(object1);
+
+		Object object2;
+		object2.Init(lane2);
+		objects.push_back(object2);
+
+		// 使用したレーンを保存
+		previousLane1 = lane1;
+		previousLane2 = lane2;
+	}
 }
 
 // 衝突判定

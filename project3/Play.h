@@ -100,8 +100,9 @@ public:
 	int count;
 	bool game;
 
-	// 直前に出現したレーン
-	int previousLane = 99;
+	// 直前に障害物を配置したレーン
+	int previousLane1 = 99;
+	int previousLane2 = 99;
 
 	// SEの変数
 	int se_mov_break;  // 破壊中の音

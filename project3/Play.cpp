@@ -160,7 +160,7 @@ void Play::Render()
 
 		//visorRain.Draw();
 
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 40);
 
 		DrawBox(0, 0, 1280, 720, GetColor(0, 0, 0), TRUE);
 

@@ -11,7 +11,7 @@ void Background::Init()
 // XV
 void Background::Update(float deltaTime, float speed)
 {
-    kusa_y += 10.0f * speed;
+    kusa_y += 5.0f * speed;
     if (kusa_y >= 360) {
         kusa_y = 0;
     }

@@ -20,6 +20,7 @@
 #include <ctime>
 #include <cstring>
 #include <tchar.h>
+#include <random>
 
 // クラス
 class Play : public ProcessBase
@@ -42,6 +43,8 @@ class Play : public ProcessBase
 	Background background;
 	Tree tree;
 	VisorRain visorRain;
+
+	std::mt19937 mt{ std::random_device{}() };
 
 	// 補助処理
 	void ResetGame();
@@ -97,6 +100,8 @@ public:
 	int count;
 	bool game;
 
+	// 直前に出現したレーン
+	int previousLane = 99;
 
 	// SEの変数
 	int se_mov_break;  // 破壊中の音

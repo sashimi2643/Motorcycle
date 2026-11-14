@@ -334,14 +334,26 @@ void Play::UpdateObject()
 // 障害物生成
 void Play::SpawnObject()
 {
-	Object object;
+	// -2～2の5レーンからランダムに選択
+	std::uniform_int_distribution<int> laneDist(-2, 2);
 
-	// -1、0、1 のいずれかの位置に出現
-	int lane = std::rand() % 3 - 1;
+	int randomLane = 0;
 
-	object.Init(lane);
+	// 直前と同じレーンにならないようにする
+	do
+	{
+		randomLane = laneDist(mt);
 
-	objects.push_back(object);
+	} while (randomLane == previousLane);
+
+	// 今回のレーンを記録
+	previousLane = randomLane;
+
+	// 障害物を生成
+	Object newObject;
+	newObject.Init(randomLane);
+
+	objects.push_back(newObject);
 }
 
 // 衝突判定

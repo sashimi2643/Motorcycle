@@ -17,10 +17,11 @@ void Play::Init()
 	speed = 0.40f;
 	score = 0;
 
-
+	title.Init();
 	lastUpdateTime = GetNowCount();
-
 	background.Init();
+	tree.Init();
+	visorRain.Init();
 
 	// 白色を透過色として画像を読み込む
 	SetTransColor(255, 255, 255);
@@ -29,9 +30,8 @@ void Play::Init()
 	// 透過色の設定を元に戻す
 	SetTransColor(0, 0, 0);
 
-	tree.Init();
-
-	visorRain.Init();
+	se_title_engine = LoadSoundMem(_T("data/title_engine.mp3"));
+	se_play_engine = LoadSoundMem(_T("data/play_engine.mp3"));
 }
 
 // 入力処理
@@ -47,14 +47,72 @@ void Play::Update()
 
 	switch (game_mode) {
 	case TITLE:  // タイトル画面の時の処理
-		if (KeyPush(KEY_INPUT_SPACE)) {
-			ResetGame();
-			game_mode = PLAY;
+		if (title.menu) {
+			// １．ゲーム開始
+			if (KeyPush(KEY_INPUT_1)) {
+				flashAlpha = 0.0f;
+				flashIn = true;
+				PlaySoundMem(se_title_engine, DX_PLAYTYPE_BACK);
+				game_mode = FADE;
+			}
+			// ２．操作方法
+			if (!title.operate) {
+				if (KeyPush(KEY_INPUT_2)) {
+					title.operate = true;
+				}
+			}
+			else {
+				if (KeyPush(KEY_INPUT_2)) {
+					title.operate = false;
+				}
+			}
+			// ３．ゲーム終了
+			if (Key[KEY_INPUT_3] == 1)
+			{
+				PostQuitMessage(0);
+			}
+		}
+		else {
+			// タイトルからメニューへ
+			if (KeyPush(KEY_INPUT_SPACE)) {
+				title.menu = true;
+			}
+		}
+		break;
+
+	case FADE:
+		// 白く光る
+		if (flashIn)
+		{
+			flashAlpha += 25.0f;
+
+			if (flashAlpha >= 200.0f)
+			{
+				flashAlpha = 200.0f;
+				flashIn = false;
+			}
+		}
+		// 白い画面から元に戻る
+		else
+		{
+			flashAlpha -= 25.0f;
+
+			if (flashAlpha <= 0.0f)
+			{
+				flashAlpha = 0.0f;
+				fade_count++;
+				if (fade_count >= 120) {
+					fade_count = 0;
+					game_mode = PLAY;
+					PlaySoundMem(se_play_engine, DX_PLAYTYPE_LOOP);
+				}
+			}
 		}
 		break;
 
 	case PLAY:
 	{
+		
 		int now = GetNowCount();
 
 		deltaTime = (now - lastUpdateTime) / 1000.0f;
@@ -108,7 +166,7 @@ void Play::Update()
 		if (KeyPush(KEY_INPUT_SPACE))
 		{
 			ResetGame();
-			game_mode = PLAY;
+			game_mode = TITLE;
 		}
 		break;
 	}
@@ -122,17 +180,29 @@ void Play::Render()
 {
 	switch (game_mode) {
 	case TITLE:
-		DrawBox(0, 0, 1280, 720, 0x202830, TRUE);
+		title.Draw();
 
-		DrawString(
-			440, 220,
-			_T("MOTORCYCLE RUN"),
-			0xFFFFFF);
+		break;
 
-		DrawString(
-			390, 330,
-			_T("PRESS SPACE TO START"),
-			0xFFFFFF);
+	case FADE:
+
+		// タイトル画面を背景として描画
+		title.Draw();
+
+		// 白い画面を重ねる
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA,
+			static_cast<int>(flashAlpha));
+
+		DrawBox(
+			0, 0,
+			1280, 720,
+			GetColor(255, 255, 255),
+			TRUE
+		);
+
+		// ブレンドモードを元に戻す
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 		break;
 
 	case PLAY:
@@ -190,6 +260,46 @@ void Play::Render()
 // 音声再生処理
 void Play::Sound_play()
 {
+	switch (game_mode) {
+	case TITLE:  // タイトル画面の時の処理
+		if (title.menu) {
+			// １．ゲーム開始
+			if (KeyPush(KEY_INPUT_1)) {
+				PlaySoundMem(se_title_engine, DX_PLAYTYPE_BACK);
+			}
+			// ２．操作方法
+			if (!title.operate) {
+				if (KeyPush(KEY_INPUT_2)) {
+				}
+			}
+			else {
+				if (KeyPush(KEY_INPUT_2)) {
+				}
+			}
+			// ３．ゲーム終了
+			if (Key[KEY_INPUT_3] == 1)
+			{
+			}
+		}
+		else {
+			// タイトルからメニューへ
+			if (KeyPush(KEY_INPUT_SPACE)) {
+			}
+		}
+		break;
+
+	case FADE:
+		
+		break;
+
+	case PLAY:
+
+		break;
+
+	case RESULT:
+
+		break;
+	}
 }
 
 // ゲーム初期化
@@ -201,9 +311,12 @@ void Play::ResetGame()
 	speed = 0.40f;
 	score = 0;
 
+	title.Init();
 	objects.clear();
-
 	road.Init();
+	background.Init();
+	tree.Init();
+	visorRain.Init();
 
 	lastUpdateTime = GetNowCount();
 
@@ -413,6 +526,7 @@ void Play::CheckCollision()
 		// 一定距離以内ならゲームオーバー
 		if (distance < 0.27f)
 		{
+			StopSoundMem(se_play_engine);
 			game_mode = RESULT;
 			return;
 		}

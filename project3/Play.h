@@ -3,7 +3,7 @@
 #include "DxLib.h"
 //#include "Player.h"
 //#include "Enemy.h"
-//#include "Title.h"
+#include "Title.h"
 //#include "Result.h"
 //#include "Stage.h"
 #include "Base.h"
@@ -25,16 +25,11 @@
 // クラス
 class Play : public ProcessBase
 {
-	// プレイヤーのインスタンス
-	//Player* player = nullptr;
-	//// 雲のインスタンス
-	//Enemy* enemy = nullptr;
-	//// タイトルのインスタンス
-	//Title* title = nullptr;
+	// タイトル
+	Title title;
 	//// リザルトのインスタンス
 	//Result* result = nullptr;
-	//// ステージのインスタンス
-	//Stage* stage = nullptr;
+	
 
 
 	// 道路・障害物・背景
@@ -60,6 +55,7 @@ public:
 	// ゲームのモード
 	enum {
 		TITLE,
+		FADE,
 		PLAY,
 		RESULT,
 	};
@@ -104,9 +100,14 @@ public:
 	int previousLane1 = 99;
 	int previousLane2 = 99;
 
+	// フラッシュ演出用
+	float flashAlpha = 0.0f;
+	bool flashIn = true;
+	int fade_count = 0;
+
 	// SEの変数
-	int se_mov_break;  // 破壊中の音
-	int se_break;      // 破壊した音
+	int se_title_engine;
+	int se_play_engine;
 
 	//	初期化処理
 	void Init()override;

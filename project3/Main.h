@@ -12,12 +12,6 @@ class Game : public ProcessBase
 {
 	// プレイのインスタンス
 	Play play;
-	//// タイトルのインスタンス
-	//Title title;
-	//// プレイヤーのインスタンス
-	//Player player;
-	//// リザルトのインスタンス
-	//Result result;
 
 public:
 

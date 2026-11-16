@@ -64,64 +64,28 @@ void Game::Game_Loop()
 void Game::Init()
 {
 	this->play.Init();
-	/*this->title.Init();
-	this->player.Init();
-	this->result.Init();*/
 }
 
 // 入力処理
 void Game::Input()
 {
 	this->play.Input();
-	/*this->play.SetPlayer(&player);
-	this->play.SetTitle(&title);
-	this->play.SetResult(&result);
-	this->title.Input();
-	this->player.Input();
-	this->result.Input();*/
 }
 
 // 更新処理
 void Game::Update()
 {
 	this->play.Update();  // 全体の処理
-	//if (this->play.game_mode == this->play.TITLE) {  // タイトル時の処理
-	//	this->title.Update();
-	//}
-	//if (this->play.game_mode == this->play.PLAY) {  // プレイ時の処理
-	//	this->player.Update();
-	//}
-	//if (this->play.game_mode == this->play.RESULT) {  // リザルト時の処理
-	//	this->result.Update();
-	//}
 }
 
 // 画面描画処理
 void Game::Render()
 {
-	if (this->play.game_mode == this->play.TITLE) {  // タイトル時の処理
-		//this->title.Render();
-	}
-	if (this->play.game_mode == this->play.PLAY) {  // プレイ時の処理
-		//this->player.Render();
-		this->play.Render();  // 全体の処理
-	}
-	if (this->play.game_mode == this->play.RESULT) {  // リザルト時の処理
-		//this->result.Render();
-	}
+	this->play.Render();  // 全体の処理
 }
 
 // 音声再生処理
 void Game::Sound_play()
 {
 	this->play.Sound_play();  // 全体の処理
-	//if (this->play.game_mode == this->play.TITLE) {  // タイトル時の処理
-	//	this->title.Sound_play();
-	//}
-	//if (this->play.game_mode == this->play.PLAY) {  // プレイ時の処理
-	//	this->player.Sound_play();
-	//}
-	//if (this->play.game_mode == this->play.RESULT) {  // リザルト時の処理
-	//	this->result.Sound_play();
-	//}
 }

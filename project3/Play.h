@@ -12,6 +12,7 @@
 #include "Background.h"
 #include "Tree.h"
 #include "VisorRain.h"
+#include "Danger.h"
 
 #include <vector>
 #include <algorithm>
@@ -30,8 +31,6 @@ class Play : public ProcessBase
 	//// リザルトのインスタンス
 	//Result* result = nullptr;
 	
-
-
 	// 道路・障害物・背景
 	Road road;
 	std::vector<Object> objects;
@@ -40,17 +39,6 @@ class Play : public ProcessBase
 	VisorRain visorRain;
 
 	std::mt19937 mt{ std::random_device{}() };
-
-	// 補助処理
-	void ResetGame();
-	void UpdatePlayer();
-	void UpdateObject();
-	void CheckCollision();
-	void SpawnObject();
-	void DrawPlayer();
-	void DrawHandleImage();
-
-public:
 
 	// ゲームのモード
 	enum {
@@ -96,6 +84,18 @@ public:
 	int count;
 	bool game;
 
+	// 危険表示
+	std::vector<Danger> dangers;
+
+	// 警告後に出現する障害物のレーン
+	std::vector<int> pendingLanes;
+
+	// 警告時間
+	float dangerTimer = 0.0f;
+
+	// 警告中かどうか
+	bool waitingForDanger = false;
+
 	// 直前に障害物を配置したレーン
 	int previousLane1 = 99;
 	int previousLane2 = 99;
@@ -105,9 +105,34 @@ public:
 	bool flashIn = true;
 	int fade_count = 0;
 
+	// 画面振動用
+	float shakeTime = 0.0f;
+
+	// 画面の揺れ幅
+	float shakePower = 1.1f;
+
+	// 画面振動用
+	int gameScreen = -1;
+
+	// 画面の移動量
+	int shakeX = 0;
+	int shakeY = 0;
+
 	// SEの変数
 	int se_title_engine;
 	int se_play_engine;
+
+	// 補助処理
+	void ResetGame();
+	void UpdatePlayer();
+	void UpdateObject();
+	void CheckCollision();
+	void SpawnObject();
+	void DrawPlayer();
+	void DrawHandleImage();
+	void UpdateShake();
+
+public:
 
 	//	初期化処理
 	void Init()override;

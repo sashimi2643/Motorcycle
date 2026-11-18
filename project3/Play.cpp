@@ -26,6 +26,11 @@ void Play::Init()
 	// 白色を透過色として画像を読み込む
 	SetTransColor(255, 255, 255);
 	handle_image = LoadGraph(_T("data/handle.png"));
+	// 危険表示画像を読み込む
+	Danger::LoadImage();
+
+	// 画面全体を一時的に描画する画面を作成
+	gameScreen = MakeScreen(1280, 720, FALSE);
 
 	// 透過色の設定を元に戻す
 	SetTransColor(0, 0, 0);
@@ -142,6 +147,8 @@ void Play::Update()
 
 		UpdatePlayer();
 
+		UpdateShake();
+
 		road.Update(deltaTime, speed);
 
 		tree.Update(deltaTime, speed);
@@ -178,11 +185,28 @@ void Play::Update()
 // 画面描画処理
 void Play::Render()
 {
-	switch (game_mode) {
+	// 通常の描画先に設定
+	SetDrawScreen(DX_SCREEN_BACK);
+
+	// PLAY中だけ一時画面に描画する
+	bool useShake = (game_mode == PLAY && gameScreen != -1);
+
+	if (useShake)
+	{
+		SetDrawScreen(gameScreen);
+
+		// 一時画面をクリア
+		ClearDrawScreen();
+	}
+
+	switch (game_mode)
+	{
 	case TITLE:
+
 		title.Draw();
 
 		break;
+
 
 	case FADE:
 
@@ -190,8 +214,10 @@ void Play::Render()
 		title.Draw();
 
 		// 白い画面を重ねる
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA,
-			static_cast<int>(flashAlpha));
+		SetDrawBlendMode(
+			DX_BLENDMODE_ALPHA,
+			static_cast<int>(flashAlpha)
+		);
 
 		DrawBox(
 			0, 0,
@@ -205,6 +231,7 @@ void Play::Render()
 
 		break;
 
+
 	case PLAY:
 		// 1. 背景を描画
 		background.Draw(playerX);
@@ -212,48 +239,94 @@ void Play::Render()
 		tree.Draw(playerX);
 		// 3. 道路を描画
 		road.Draw(playerX);
-		// 4. 障害物を描画
+		// 4. 危険表示
+		for (const Danger& danger : dangers)
+		{
+			danger.Draw(playerX);
+		}
+		// 5. 障害物を描画
 		for (const Object& object : objects)
 		{
 			object.Draw(playerX);
 		}
-		// 5. プレイヤーを描画
+		// 6. プレイヤーを描画
 		DrawHandleImage();
 
+		// スコア
 		DrawFormatString(
 			20, 20, 0xFFFFFF,
-			_T("SCORE: %d"), score);
+			_T("SCORE: %d"), score
+		);
 
+		// スピード
 		DrawFormatString(
 			20, 50, 0xFFFFFF,
-			_T("SPEED: %.2f"), speed);
+			_T("SPEED: %.2f"), speed
+		);
 
-		//visorRain.Draw();
+		// visorRain.Draw();
 
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 40);
 
-		DrawBox(0, 0, 1280, 720, GetColor(0, 0, 0), TRUE);
+		DrawBox(
+			0, 0,
+			1280, 720,
+			GetColor(0, 0, 0),
+			TRUE
+		);
 
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	break;
+
+		break;
+
 
 	case RESULT:
-		DrawBox(0, 0, 1280, 720, 0x101010, TRUE);
+
+		DrawBox(
+			0, 0,
+			1280, 720,
+			0x101010,
+			TRUE
+		);
 
 		DrawString(
 			510, 220,
 			_T("GAME OVER"),
-			0xFF3333);
+			0xFF3333
+		);
 
 		DrawFormatString(
 			550, 300, 0xFFFFFF,
-			_T("SCORE: %d"), score);
+			_T("SCORE: %d"), score
+		);
 
 		DrawString(
 			430, 380,
 			_T("PRESS SPACE TO RETRY"),
-			0xFFFFFF);
+			0xFFFFFF
+		);
+
 		break;
+	}
+
+	// =================================
+	// 画面全体の振動処理
+	// =================================
+
+	if (useShake)
+	{
+		// 描画先を通常画面に戻す
+		SetDrawScreen(DX_SCREEN_BACK);
+
+		// 画面を少し拡大して、揺れたときの隙間を防ぐ
+		DrawExtendGraph(
+			-6 + shakeX,
+			-4 + shakeY,
+			1286 + shakeX,
+			724 + shakeY,
+			gameScreen,
+			FALSE
+		);
 	}
 }
 
@@ -310,6 +383,17 @@ void Play::ResetGame()
 	spawnTimer = 0.0f;
 	speed = 0.40f;
 	score = 0;
+
+	spawnTimer = 0.0f;
+
+	dangerTimer = 0.0f;
+	waitingForDanger = false;
+
+	previousLane1 = 99;
+	previousLane2 = 99;
+
+	dangers.clear();
+	pendingLanes.clear();
 
 	title.Init();
 	objects.clear();
@@ -409,30 +493,67 @@ void Play::UpdatePlayer()
 		(targetHandleAngle - handleAngle) * HANDLE_RESPONSE;
 }
 
-// 障害物生成と移動
 void Play::UpdateObject()
 {
-	spawnTimer += deltaTime;
-
-	// 時間が経過するほど障害物の出現間隔を短くする
-	float interval = 1.5f - elapsedTime * 0.003f;
-
-	if (interval < 0.75f)
+	// 警告中でなければ、次の出現時間を計測
+	if (!waitingForDanger)
 	{
-		interval = 0.75f;
+		spawnTimer += deltaTime;
+
+		float interval = 1.5f - elapsedTime * 0.003f;
+
+		if (interval < 0.75f)
+		{
+			interval = 0.75f;
+		}
+
+		if (spawnTimer >= interval)
+		{
+			spawnTimer = 0.0f;
+
+			// 障害物の警告を開始
+			SpawnObject();
+		}
 	}
 
-	if (spawnTimer >= interval)
+	// 危険表示の更新
+	for (Danger& danger : dangers)
 	{
-		spawnTimer = 0.0f;
-		SpawnObject();
+		danger.Update(deltaTime);
 	}
 
+	// 警告時間の計測
+	if (waitingForDanger)
+	{
+		dangerTimer += deltaTime;
+
+		// 1秒経過したら障害物を出現させる
+		if (dangerTimer >= 1.0f)
+		{
+			for (int lane : pendingLanes)
+			{
+				Object newObject;
+				newObject.Init(lane);
+
+				objects.push_back(newObject);
+			}
+
+			// 警告を消す
+			dangers.clear();
+			pendingLanes.clear();
+
+			waitingForDanger = false;
+			dangerTimer = 0.0f;
+		}
+	}
+
+	// 障害物の更新
 	for (Object& object : objects)
 	{
 		object.Update(deltaTime, speed);
 	}
 
+	// 画面外の障害物を削除
 	objects.erase(
 		std::remove_if(
 			objects.begin(),
@@ -450,61 +571,60 @@ void Play::SpawnObject()
 	// 5レーンを用意
 	std::vector<int> laneCandidates = { -2, -1, 0, 1, 2 };
 
-	// レーンの順番をランダムにする
+	// 前回使用したレーンを除外
+	laneCandidates.erase(
+		std::remove_if(
+			laneCandidates.begin(),
+			laneCandidates.end(),
+			[this](int lane)
+			{
+				return lane == previousLane1 ||
+					lane == previousLane2;
+			}),
+		laneCandidates.end());
+
+	// レーンをランダムに並び替える
 	std::shuffle(laneCandidates.begin(), laneCandidates.end(), mt);
 
-	// 20秒経過するまでは障害物を1つにする
-	if (elapsedTime < 20.0f)
+	// 経過時間によって障害物数を変更
+	int objectCount = 1;
+
+	if (elapsedTime >= 20.0f)
 	{
-		int lane1 = laneCandidates[0];
+		objectCount = 2;
+	}
 
-		// 直前と同じレーンにならないようにする
-		while (lane1 == previousLane1)
-		{
-			std::shuffle(laneCandidates.begin(), laneCandidates.end(), mt);
-			lane1 = laneCandidates[0];
-		}
+	// 今回の出現レーンを保存
+	pendingLanes.clear();
+	dangers.clear();
 
-		Object object1;
-		object1.Init(lane1);
-		objects.push_back(object1);
+	for (int i = 0; i < objectCount; i++)
+	{
+		int lane = laneCandidates[i];
 
-		// 使用したレーンを保存
-		previousLane1 = lane1;
-		previousLane2 = 99;
+		pendingLanes.push_back(lane);
+
+		// 危険表示を生成
+		Danger newDanger;
+		newDanger.Init(lane);
+
+		dangers.push_back(newDanger);
+	}
+
+	// 警告開始
+	dangerTimer = 0.0f;
+	waitingForDanger = true;
+
+	// 使用したレーンを保存
+	previousLane1 = pendingLanes[0];
+
+	if (objectCount == 2)
+	{
+		previousLane2 = pendingLanes[1];
 	}
 	else
 	{
-		// 直前の2レーンを候補から除外
-		laneCandidates.erase(
-			std::remove_if(
-				laneCandidates.begin(),
-				laneCandidates.end(),
-				[this](int lane)
-				{
-					return lane == previousLane1 ||
-						lane == previousLane2;
-				}),
-			laneCandidates.end());
-
-		// 残ったレーンをランダムにする
-		std::shuffle(laneCandidates.begin(), laneCandidates.end(), mt);
-
-		// 障害物を2つ生成
-		int lane1 = laneCandidates[0];
-		int lane2 = laneCandidates[1];
-
-		Object object1;
-		object1.Init(lane1);
-		objects.push_back(object1);
-
-		Object object2;
-		object2.Init(lane2);
-		objects.push_back(object2);
-
-		// 使用したレーンを保存
-		previousLane1 = lane1;
-		previousLane2 = lane2;
+		previousLane2 = 99;
 	}
 }
 
@@ -566,110 +686,21 @@ void Play::DrawHandleImage()
 	);
 }
 
-// ハンドル描画(使ってない)
-void Play::DrawPlayer()
+// プレイ画面を小刻みに揺らす
+void Play::UpdateShake()
 {
-	// 画面サイズ
-	const int SCREEN_W = 1280;
-	const int SCREEN_H = 720;
+	// 時間を進める
+	shakeTime += deltaTime;
 
-	// Playerは常に画面中央に固定
-	int centerX = SCREEN_W / 2;
+	// 小刻みに揺らす
+	shakeX = static_cast<int>(
+		sin(shakeTime * 35.0f) * shakePower
+		);
 
-	const int cockpitTop = 550;
-
-	// バイク本体
-	DrawTriangle(
-		centerX - 170, SCREEN_H,
-		centerX + 170, SCREEN_H,
-		centerX, cockpitTop + 80,
-		GetColor(25, 28, 35), TRUE
-	);
-
-	// メーター本体
-	DrawBox(
-		centerX - 80, cockpitTop + 35,
-		centerX + 80, cockpitTop + 105,
-		GetColor(15, 18, 22), TRUE
-	);
-
-	// メーター画面
-	DrawBox(
-		centerX - 60, cockpitTop + 45,
-		centerX + 60, cockpitTop + 75,
-		GetColor(35, 65, 65), TRUE
-	);
-
-	// 速度表示
-	DrawFormatString(
-		centerX - 45, cockpitTop + 51,
-		GetColor(100, 255, 180),
-		_T("SPD %02d"),
-		static_cast<int>(speed * 100)
-	);
-
-	// ハンドルの支柱
-	DrawLine(
-		centerX - 100, cockpitTop + 50,
-		centerX - 145, cockpitTop + 5,
-		GetColor(35, 35, 35), 6
-	);
-
-	DrawLine(
-		centerX + 100, cockpitTop + 50,
-		centerX + 145, cockpitTop + 5,
-		GetColor(35, 35, 35), 6
-	);
-
-	// ミラー
-	DrawBox(
-		centerX - 180, cockpitTop - 5,
-		centerX - 120, cockpitTop + 25,
-		GetColor(25, 30, 35), TRUE
-	);
-
-	DrawBox(
-		centerX + 120, cockpitTop - 5,
-		centerX + 180, cockpitTop + 25,
-		GetColor(25, 30, 35), TRUE
-	);
-
-	DrawBox(
-		centerX - 173, cockpitTop,
-		centerX - 127, cockpitTop + 20,
-		GetColor(110, 145, 155), TRUE
-	);
-
-	DrawBox(
-		centerX + 127, cockpitTop,
-		centerX + 173, cockpitTop + 20,
-		GetColor(110, 145, 155), TRUE
-	);
-
-	// ハンドル
-	DrawLine(
-		centerX - 230, cockpitTop + 100,
-		centerX - 80, cockpitTop + 65,
-		GetColor(25, 25, 25), 18
-	);
-
-	DrawLine(
-		centerX + 230, cockpitTop + 100,
-		centerX + 80, cockpitTop + 65,
-		GetColor(25, 25, 25), 18
-	);
-
-	DrawCircle(
-		centerX - 230, cockpitTop + 100,
-		13, GetColor(10, 10, 10), TRUE
-	);
-
-	DrawCircle(
-		centerX + 230, cockpitTop + 100,
-		13, GetColor(10, 10, 10), TRUE
-	);
+	shakeY = static_cast<int>(
+		cos(shakeTime * 45.0f) * shakePower
+		);
 }
-
 
 // キーが押された瞬間を判定
 bool Play::KeyPush(int key)

@@ -102,12 +102,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>E:\DxLib_VC\プロジェクトに追加すべきファイル_VC用;C:\Users\koyo\source\repos\sashimi2643\Motorcycle\project3\DxLib_VC\プロジェクトに追加すべきファイル_VC用;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\com\source\repos\sashimi2643\Motorcycle\project3\DxLib_VC\プロジェクトに追加すべきファイル_VC用;C:\Users\koyo\source\repos\sashimi2643\Motorcycle\project3\DxLib_VC\プロジェクトに追加すべきファイル_VC用;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>E:\DxLib_VC\プロジェクトに追加すべきファイル_VC用;C:\Users\koyo\source\repos\sashimi2643\Motorcycle\project3\DxLib_VC\プロジェクトに追加すべきファイル_VC用;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\com\source\repos\sashimi2643\Motorcycle\project3\DxLib_VC\プロジェクトに追加すべきファイル_VC用;C:\Users\koyo\source\repos\sashimi2643\Motorcycle\project3\DxLib_VC\プロジェクトに追加すべきファイル_VC用;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -118,16 +118,17 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>E:\DxLib_VC\プロジェクトに追加すべきファイル_VC用;C:\Users\koyo\source\repos\project3\project3\DxLib_VC\プロジェクトに追加すべきファイル_VC用;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\com\source\repos\sashimi2643\Motorcycle\project3\DxLib_VC\プロジェクトに追加すべきファイル_VC用;C:\Users\koyo\source\repos\project3\project3\DxLib_VC\プロジェクトに追加すべきファイル_VC用;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>E:\DxLib_VC\プロジェクトに追加すべきファイル_VC用;C:\Users\koyo\source\repos\project3\project3\DxLib_VC\プロジェクトに追加すべきファイル_VC用;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\com\source\repos\sashimi2643\Motorcycle\project3\DxLib_VC\プロジェクトに追加すべきファイル_VC用;C:\Users\koyo\source\repos\project3\project3\DxLib_VC\プロジェクトに追加すべきファイル_VC用;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Background.cpp" />
+    <ClCompile Include="Danger.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Play.cpp" />
@@ -140,6 +141,7 @@
   <ItemGroup>
     <ClInclude Include="Background.h" />
     <ClInclude Include="Base.h" />
+    <ClInclude Include="Danger.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Play.h" />

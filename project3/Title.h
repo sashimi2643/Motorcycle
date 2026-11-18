@@ -11,13 +11,11 @@ private:
 public:
     bool menu;
     bool operate;
+	bool setting;
     // ‰Šú‰»
     void Init();
 
-    // XV
-    void Update();
-
     // •`‰æ
-    void Draw();
+    void Draw(int selectedMode);
 };
 

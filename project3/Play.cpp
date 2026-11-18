@@ -54,15 +54,20 @@ void Play::Update()
 	case TITLE:  // タイトル画面の時の処理
 		if (title.menu) {
 			// １．ゲーム開始
-			if (KeyPush(KEY_INPUT_1)) {
+			if (KeyPush(KEY_INPUT_1) && !title.operate && !title.setting) {
+				// モードに応じて振動の強さを設定
+				if (selectedMode == GAME_MODE_NORMAL){ shakePower = 0.0f; }else{ shakePower = 1.1f; }
+				// フラッシュ演出の初期化
 				flashAlpha = 0.0f;
 				flashIn = true;
+				// エンジン音を再生
 				PlaySoundMem(se_title_engine, DX_PLAYTYPE_BACK);
+				// ゲームモードをFADEに変更
 				game_mode = FADE;
 			}
 			// ２．操作方法
 			if (!title.operate) {
-				if (KeyPush(KEY_INPUT_2)) {
+				if (KeyPush(KEY_INPUT_2) && !title.setting) {
 					title.operate = true;
 				}
 			}
@@ -71,8 +76,27 @@ void Play::Update()
 					title.operate = false;
 				}
 			}
-			// ３．ゲーム終了
-			if (Key[KEY_INPUT_3] == 1)
+			// ３．ゲームの設定
+			if (!title.setting) {
+				if (KeyPush(KEY_INPUT_3) && !title.operate) {
+					title.setting = true;
+				}
+			}
+			else {
+				if (KeyPush(KEY_INPUT_1)) {	// 1キー：ゲームモード
+					selectedMode = GAME_MODE_NORMAL;
+					title.setting = false;
+				}
+				if (KeyPush(KEY_INPUT_2)) {	// 2キー：リアルモード
+					selectedMode = GAME_MODE_REAL;
+					title.setting = false;
+				}
+				if (KeyPush(KEY_INPUT_3)) {	// 3キー：タイトルに戻る
+					title.setting = false;
+				}
+			}
+			// ４．ゲーム終了
+			if (KeyPush(KEY_INPUT_4) && !title.operate && !title.setting)
 			{
 				PostQuitMessage(0);
 			}
@@ -203,7 +227,7 @@ void Play::Render()
 	{
 	case TITLE:
 
-		title.Draw();
+		title.Draw(selectedMode);
 
 		break;
 
@@ -211,7 +235,7 @@ void Play::Render()
 	case FADE:
 
 		// タイトル画面を背景として描画
-		title.Draw();
+		title.Draw(selectedMode);
 
 		// 白い画面を重ねる
 		SetDrawBlendMode(
@@ -603,17 +627,38 @@ void Play::SpawnObject()
 		int lane = laneCandidates[i];
 
 		pendingLanes.push_back(lane);
-
-		// 危険表示を生成
-		Danger newDanger;
-		newDanger.Init(lane);
-
-		dangers.push_back(newDanger);
 	}
 
-	// 警告開始
-	dangerTimer = 0.0f;
-	waitingForDanger = true;
+	// リアルモードの場合
+	if (selectedMode == GAME_MODE_REAL)
+	{
+		// 警告を表示せず、障害物をすぐに出現させる
+		for (int lane : pendingLanes)
+		{
+			Object newObject;
+			newObject.Init(lane);
+
+			objects.push_back(newObject);
+		}
+
+		waitingForDanger = false;
+		dangerTimer = 0.0f;
+	}
+	else
+	{
+		// ゲームモードの場合は警告を生成
+		for (int lane : pendingLanes)
+		{
+			Danger newDanger;
+			newDanger.Init(lane);
+
+			dangers.push_back(newDanger);
+		}
+
+		// 警告開始
+		dangerTimer = 0.0f;
+		waitingForDanger = true;
+	}
 
 	// 使用したレーンを保存
 	previousLane1 = pendingLanes[0];

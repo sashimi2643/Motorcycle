@@ -105,6 +105,15 @@ class Play : public ProcessBase
 	bool flashIn = true;
 	int fade_count = 0;
 
+	// ゲームモード
+	enum GAME_MODE
+	{
+		GAME_MODE_NORMAL,  // ゲームモード
+		GAME_MODE_REAL     // リアルモード
+	};
+
+	GAME_MODE selectedMode = GAME_MODE_NORMAL;
+
 	// 画面振動用
 	float shakeTime = 0.0f;
 

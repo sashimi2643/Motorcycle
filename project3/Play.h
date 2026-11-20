@@ -108,14 +108,16 @@ class Play : public ProcessBase
 		BLACK_OUT,      // 暗くなる
 		BLACK_IN        // 明るくなる
 	};
-
 	FADE_STATE fadeState = FLASH_IN;
-
 	// フェード用アルファ値
 	float fadeAlpha = 0.0f;
 	// フェード速度
 	float fadeSpeed = 550.0f;
+	// フィードからプレイへの遅延変数
 	int fade_count = 0;
+	// 処理が長いから関数でまとめる
+	void UpdateFade();
+	void RenderFade();
 
 	// ゲームモード
 	enum GAME_MODE

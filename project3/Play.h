@@ -100,9 +100,21 @@ class Play : public ProcessBase
 	int previousLane1 = 99;
 	int previousLane2 = 99;
 
-	// フラッシュ演出用
-	float flashAlpha = 0.0f;
-	bool flashIn = true;
+	// フェード演出の状態
+	enum FADE_STATE
+	{
+		FLASH_IN,       // 白くなる
+		FLASH_OUT,      // 白から戻る
+		BLACK_OUT,      // 暗くなる
+		BLACK_IN        // 明るくなる
+	};
+
+	FADE_STATE fadeState = FLASH_IN;
+
+	// フェード用アルファ値
+	float fadeAlpha = 0.0f;
+	// フェード速度
+	float fadeSpeed = 550.0f;
 	int fade_count = 0;
 
 	// ゲームモード

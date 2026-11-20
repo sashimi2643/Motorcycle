@@ -23,6 +23,8 @@ void Play::Init()
 	tree.Init();
 	visorRain.Init();
 
+	lastUpdateTime = GetNowCount();
+
 	// 白色を透過色として画像を読み込む
 	SetTransColor(255, 255, 255);
 	handle_image = LoadGraph(_T("data/handle.png"));
@@ -48,6 +50,23 @@ void Play::Input()
 // 更新処理
 void Play::Update()
 {
+	// 毎フレームの経過時間を計算
+	int now = GetNowCount();
+
+	deltaTime = (now - lastUpdateTime) / 1000.0f;
+	lastUpdateTime = now;
+
+	// 処理落ち時の急激な移動を防止
+	if (deltaTime < 0.0f)
+	{
+		deltaTime = 0.0f;
+	}
+
+	if (deltaTime > 0.05f)
+	{
+		deltaTime = 0.05f;
+	}
+
 	Input();
 
 	switch (game_mode) {
@@ -58,8 +77,8 @@ void Play::Update()
 				// モードに応じて振動の強さを設定
 				if (selectedMode == GAME_MODE_NORMAL){ shakePower = 0.0f; }else{ shakePower = 1.1f; }
 				// フラッシュ演出の初期化
-				flashAlpha = 0.0f;
-				flashIn = true;
+				fadeState = FLASH_IN;
+				fadeAlpha = 0.0f;
 				// エンジン音を再生
 				PlaySoundMem(se_title_engine, DX_PLAYTYPE_BACK);
 				// ゲームモードをFADEに変更
@@ -110,54 +129,80 @@ void Play::Update()
 		break;
 
 	case FADE:
-		// 白く光る
-		if (flashIn)
-		{
-			flashAlpha += 25.0f;
 
-			if (flashAlpha >= 200.0f)
+		switch (fadeState)
+		{
+			// 白くなる
+		case FLASH_IN:
+
+			fadeAlpha += 25.0f;
+
+			if (fadeAlpha >= 200.0f)
 			{
-				flashAlpha = 200.0f;
-				flashIn = false;
+				fadeAlpha = 200.0f;
+				fadeState = FLASH_OUT;
 			}
-		}
-		// 白い画面から元に戻る
-		else
-		{
-			flashAlpha -= 25.0f;
 
-			if (flashAlpha <= 0.0f)
+			break;
+
+			// 白から戻る
+		case FLASH_OUT:
+
+			fadeAlpha -= 25.0f;
+
+			if (fadeAlpha <= 0.0f)
 			{
-				flashAlpha = 0.0f;
+				fadeAlpha = 0.0f;
 				fade_count++;
 				if (fade_count >= 120) {
 					fade_count = 0;
-					game_mode = PLAY;
-					PlaySoundMem(se_play_engine, DX_PLAYTYPE_LOOP);
+					fadeState = BLACK_OUT;
 				}
 			}
+
+			break;
+
+			// タイトル画面を暗くする
+		case BLACK_OUT:
+
+			fadeAlpha += fadeSpeed * deltaTime;
+
+			if (fadeAlpha >= 255.0f)
+			{
+				fadeAlpha = 255.0f;
+
+				// 完全に暗くなったらゲームを初期化
+				ResetGame();
+
+				// ゲーム画面の明転へ
+				fadeState = BLACK_IN;
+			}
+
+			break;
+
+			// ゲーム画面を明るくする
+		case BLACK_IN:
+
+			fadeAlpha -= fadeSpeed * deltaTime;
+
+			if (fadeAlpha <= 0.0f)
+			{
+				fadeAlpha = 0.0f;
+
+				// フェード終了
+				// プレイ画面へ
+				game_mode = PLAY;
+				PlaySoundMem(se_play_engine, DX_PLAYTYPE_LOOP);
+			}
+
+			break;
 		}
+
+
 		break;
 
 	case PLAY:
 	{
-		
-		int now = GetNowCount();
-
-		deltaTime = (now - lastUpdateTime) / 1000.0f;
-		lastUpdateTime = now;
-
-		// 処理落ち時の急激な移動を防止
-		if (deltaTime < 0.0f)
-		{
-			deltaTime = 0.0f;
-		}
-
-		if (deltaTime > 0.05f)
-		{
-			deltaTime = 0.05f;
-		}
-
 		elapsedTime += deltaTime;
 
 		// 徐々に速度を上げる
@@ -233,22 +278,116 @@ void Play::Render()
 
 
 	case FADE:
+		// =================================
+		// 白いフラッシュ
+		// =================================
+		if (fadeState == FLASH_IN || fadeState == FLASH_OUT)
+		{
+			// タイトル画面を背景に描画
+			title.Draw(selectedMode);
 
-		// タイトル画面を背景として描画
-		title.Draw(selectedMode);
+			// 白いフラッシュを重ねる
+			SetDrawBlendMode(
+				DX_BLENDMODE_ALPHA,
+				(int)fadeAlpha
+			);
 
-		// 白い画面を重ねる
-		SetDrawBlendMode(
-			DX_BLENDMODE_ALPHA,
-			static_cast<int>(flashAlpha)
-		);
+			DrawBox(
+				0, 0, 1280, 720,
+				GetColor(255, 255, 255),
+				TRUE
+			);
+		}
 
-		DrawBox(
-			0, 0,
-			1280, 720,
-			GetColor(255, 255, 255),
-			TRUE
-		);
+		// =================================
+		// タイトル画面の暗転
+		// =================================
+		else if (fadeState == BLACK_OUT)
+		{
+			// タイトル画面を描画
+			title.Draw(selectedMode);
+
+			// 徐々に黒くする
+			SetDrawBlendMode(
+				DX_BLENDMODE_ALPHA,
+				(int)fadeAlpha
+			);
+
+			DrawBox(
+				0, 0, 1280, 720,
+				GetColor(0, 0, 0),
+				TRUE
+			);
+		}
+
+		// =================================
+		// プレイ画面の明転
+		// =================================
+		else if (fadeState == BLACK_IN)
+		{
+			// 1. 背景
+			background.Draw(playerX);
+
+			// 2. 木
+			tree.Draw(playerX);
+
+			// 3. 道路
+			road.Draw(playerX);
+
+			// 4. 危険表示（ゲームモードのみ）
+			if (selectedMode == GAME_MODE_NORMAL)
+			{
+				for (const Danger& danger : dangers)
+				{
+					danger.Draw(playerX);
+				}
+			}
+
+			// 5. 障害物
+			for (const Object& object : objects)
+			{
+				object.Draw(playerX);
+			}
+
+			// 6. ハンドル
+			DrawHandleImage();
+
+			// 7. スコア
+			DrawFormatString(
+				20, 20, 0xFFFFFF,
+				_T("SCORE: %d"), score
+			);
+
+			// 8. スピード
+			DrawFormatString(
+				20, 50, 0xFFFFFF,
+				_T("SPEED: %.2f"), speed
+			);
+
+			// 通常プレイ時と同じ画面の暗さ
+			SetDrawBlendMode(DX_BLENDMODE_ALPHA, 40);
+
+			DrawBox(
+				0, 0, 1280, 720,
+				GetColor(0, 0, 0),
+				TRUE
+			);
+
+			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+			// 黒い画面を徐々に透明にする
+			SetDrawBlendMode(
+				DX_BLENDMODE_ALPHA,
+				(int)fadeAlpha
+			);
+
+			DrawBox(
+				0, 0, 1280, 720,
+				GetColor(0, 0, 0),
+				TRUE
+			);
+		}
+
 
 		// ブレンドモードを元に戻す
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);

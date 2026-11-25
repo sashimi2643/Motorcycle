@@ -11,7 +11,7 @@ struct TreeData
     int side;    // -1 = 左側、1 = 右側
     float sideOffset;  // 道路幅に対するランダムな割合
     
-    float speedRate; // 木ごとの移動速度倍率
+    bool isOuter;       // 外側の木かどうか
 };
 
 class Tree

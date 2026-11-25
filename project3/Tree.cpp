@@ -20,26 +20,34 @@ bool Tree::Init()
     // 道路幅に対する割合をランダムに決定
     std::uniform_real_distribution<float> offsetDist(0.0f, 1.0f);
 
-    for (int i = 0; i < 50; i++)
+    // 本数を指定
+    constexpr int INNER_TREE_COUNT = 30;
+    constexpr int OUTER_TREE_COUNT = 40;
+
+    // 内側の木を生成
+    for (int i = 0; i < INNER_TREE_COUNT; i++)
     {
         TreeData tree;
 
         tree.depth = 0.05f + (i / 2) * 0.095f;
-
         tree.side = (i % 2 == 0) ? -1 : 1;
-
-        // ここで一度だけランダム設定
         tree.sideOffset = offsetDist(mt);
 
-        // 内側と外側で速度を分ける
-        if (i < 30)
-        {
-            tree.speedRate = 1.0f;
-        }
-        else
-        {
-            tree.speedRate = 0.45f;
-        }
+        tree.isOuter = false;
+
+        trees.push_back(tree);
+    }
+
+    // 外側の木を生成
+    for (int i = 0; i < OUTER_TREE_COUNT; i++)
+    {
+        TreeData tree;
+
+        tree.depth = 0.05f + (i / 2) * 0.095f;
+        tree.side = (i % 2 == 0) ? -1 : 1;
+        tree.sideOffset = offsetDist(mt);
+
+        tree.isOuter = true;
 
         trees.push_back(tree);
     }
@@ -58,8 +66,11 @@ void Tree::Update(float deltaTime, float speed)
         // 手前に来るほど移動速度を上げる
         float depthSpeed = 0.5f + tree.depth * 15.0f;
 
-        tree.depth +=
-            deltaTime * speed * TREE_SCROLL_SPEED * depthSpeed * tree.speedRate;
+        // 内側・外側ともに同じ速度で移動
+        tree.depth += deltaTime
+            * speed
+            * TREE_SCROLL_SPEED
+            * depthSpeed;
 
         // 手前まで来たら奥に戻す
         if (tree.depth > 1.0f)
@@ -94,28 +105,37 @@ void Tree::Draw(float playerX) const
                 ROAD_TOP_HALF +
                 (ROAD_BOTTOM_HALF - ROAD_TOP_HALF) * t;
 
+            // 道路の幅に対するランダムな距離
             float randomDistance = roadHalfWidth * tree.sideOffset;
 
-            float x;
+            // 道路の移動に合わせて木も横に移動
+            float roadShift = -playerX * 300.0f * t;
 
-            // 内側の木
-            if (tree.speedRate == 1.0f)
+            // 木の大きさ
+            float scale = 0.06f + t * 3.0f;
+
+            // 内側・外側で共通の横移動量を使用
+            float x = SCREEN_W / 2.0f + roadShift;
+
+            if (tree.isOuter)
             {
-                float roadShift = -playerX * 300.0f * t;
+                // 外側の木
+                // 内側の木が存在する範囲よりも外側に配置する
+                float outerDistance =
+                    roadHalfWidth
+                    + TREE_MARGIN
+                    + roadHalfWidth
+                    + 120.0f
+                    + scale * 80.0f;
 
-                x = SCREEN_W / 2.0f + roadShift
-                    + tree.side * (roadHalfWidth + TREE_MARGIN + randomDistance);
+                x += tree.side * (outerDistance + randomDistance);
             }
-            // 外側の木
             else
             {
-                float outerMargin = TREE_MARGIN + 100.0f;
-
-                x = SCREEN_W / 2.0f
-                    + tree.side * (roadHalfWidth + outerMargin + randomDistance);
+                // 内側の木
+                x += tree.side * (roadHalfWidth + TREE_MARGIN + randomDistance);
             }
 
-            float scale = 0.06f + t * 3.0f;
 
             int drawY = static_cast<int>(y - 150.0f * scale);
 
@@ -146,7 +166,7 @@ void Tree::Draw(float playerX) const
             SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
 
             DrawRotaGraph(
-                static_cast<int>(x),
+                (int)x,
                 drawY,
                 scale,
                 0.0,

@@ -46,9 +46,9 @@ void Object::Draw(float playerX) const
 
     // áŠQ•¨‚Ì‰æ–Êã‚Ì‚‚³
     float y = 360.0f
-        + (SCREEN_H - 360.0f) * t * t;
+        + (SCREEN_H / 2) * t * t;
 
-    // ‰“‹ß—¦
+    // ‰“‹ß—¦(“ñæ‚·‚é‚±‚Æ‚É‚æ‚è™X‚É‘å‚«‚­‚È‚é‚ğÄŒ»)
     float perspective = t * t;
 
     // “¹˜H‚Ì•
